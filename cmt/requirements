@@ -1,0 +1,32 @@
+package genconfig
+
+##########################################################################################
+
+author  Reiner.Hauser@cern.ch Igor.Soloviev@cern.ch
+manager Igor.Soloviev@cern.ch
+
+##########################################################################################
+
+public
+
+use OnlinePolicy
+
+make_fragment   generate-config_header
+make_fragment	generate-config -header=generate-config_header
+
+##########################################################################################
+
+private
+
+use oks
+use Boost * TDAQCExternal
+
+#use config
+#use oksconfig
+
+application	genconfig			"*.cpp"
+macro           genconfiglinkopts              	"-loks"
+
+apply_pattern	install_apps			files="genconfig"
+
+##########################################################################################

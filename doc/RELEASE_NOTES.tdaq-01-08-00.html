@@ -1,0 +1,56 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>API Changes</title>
+</head>
+
+<body>
+
+<h4>C++ Changes</h4>
+<h5>Throw exception when access inconsistent relationship value</h5>
+<p>Throw daq::config::Generic exception when read empty value of relationship 
+with non-zero cardinality constraint. As a consequence user's code may skip 
+check of returned pointer for 0 (null) value, when relationship's cardinality is 
+1:1 or 1:N, e.g.:</p>
+<pre style="margin-left: 40px;">daq::core::Application a(...);
+  <font color="#336600">// <em>read application's program; cardinality of relationahip is 1:1</em></font>
+<strong>try</strong> {
+  const daq::core::ComputerProgram * program = a.<strong>get_Program()</strong>;
+  std::cout &lt;&lt; &quot;the program ID: &quot; &lt;&lt; program-&gt;UID() &lt;&lt; std::endl; <font color="#336600">// <em>do not check for null</em></font>
+}
+<strong>catch</strong>(<strong>daq::config::Exception</strong>&amp; ex) {
+  std::cerr &lt;&lt; &quot;ERROR: bad data; program is not set &quot; &lt;&lt; ex &lt;&lt; std::endl;
+}
+  <font color="#336600">// <em>read application's host;  cardinality of relationahip is 0:1</em></font>
+const daq::core::Computer * host = a.<strong>get_RunsOn()</strong>;
+<strong>if(host)</strong> { std::cout &lt;&lt; &quot;the host ID: &quot; &lt;&lt; host-&gt;UID() &lt;&lt; std::endl; } <font color="#336600">// <em>check for null</em></font>
+<strong>else</strong> { std::cerr &lt;&lt; &quot;ERROR: bad data; host of &quot; &lt;&lt; a.UID() &lt;&lt; &quot;  is not set&quot; &lt;&lt; std::endl; }</pre>
+<h5>Generate Method Epilogue</h5>
+In addition for prologues it is possible to generate epilogues of methods. This 
+is useful in particular to generate C++ template methods.<br>
+For epilogues put into C++ method's implementation:<pre style="margin-left: 40px;"><strong>BEGIN_HEADER_EPILOGUE</strong>
+<font color="#336600">  // <em>any code between top and bottom keywords</em>
+  // <em>appears in &#1057;++ header after declaration of all methods</em></font>
+<strong>END_HEADER_EPILOGUE</strong></pre>
+Below there is just a reminder, how to use prologues, e.g. to declare a type or to include 
+header file, etc:<pre style="margin-left: 40px;"><strong>BEGIN_HEADER_PROLOGUE</strong>
+<font color="#336600">  // <em>any code between top and bottom keywords appears before declaration of any methods</em>
+  // <em>e.g. to include user's header put this:</em></font>
+  #include &quot;my-package/my-header.h&quot;
+<strong>END_HEADER_PROLOGUE</strong> </pre>
+<h5>Bug Fixes and Performance Optimisation</h5>
+<ul>
+	<li>Do not generate anymore code invoking attribute converters when read C++ 
+objects, since it is done by config layer (see <a href="#config">config</a> 
+package release notes).</li>
+	<li>Fix bug with wrong directory prefix for C++ files.</li>
+</ul>
+<h4>Generation of Python Code, with base functionalities, like type coarcing, etc. Basically,
+the functionalities previously existent in PartitionMaker::tdaqcomponent.py module were migrated to
+this package.</h4>
+
+</body>
+
+</html>

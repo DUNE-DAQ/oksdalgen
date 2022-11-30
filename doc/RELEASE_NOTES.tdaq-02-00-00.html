@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:v="urn:schemas-microsoft-com:vml"
+ xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta http-equiv="Content-Language" content="en-us">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Untitled 1</title>
+</head>
+<body>
+<h4>C++ API Changes</h4>
+<h5>Integer Types</h5>
+To support 64-bits platform the generated <span
+ style="font-style: italic;">get()</span> and <span
+ style="font-style: italic;">set()</span> methods use typedefs from
+&lt;stdint.h&gt; instead of non-safe built-in C++ types. One has to
+replace any occurrences of explicitly used in such methods signed and
+unsigned char, short and long types as shown in the following table:<br>
+<br>
+<table style="text-align: left;" border="0" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th
+ style="vertical-align: top; text-align: center; background-color: rgb(204, 204, 255);">OKS
+Type<br>
+      </th>
+      <th
+ style="vertical-align: top; text-align: center; background-color: rgb(204, 204, 255);">Old
+C++ Type<br>
+      </th>
+      <th
+ style="vertical-align: top; text-align: center; background-color: rgb(204, 204, 255);">New
+C++ Type<br>
+      </th>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 204, 204); font-family: Courier New,Courier,monospace; text-align: left;"><span
+ style="font-weight: bold;">&nbsp;s8</span> (8-bits signed integer)<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; background-color: rgb(204, 204, 204); font-family: Courier New,Courier,monospace;">unsigned
+char<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; background-color: rgb(204, 204, 204); font-family: Courier New,Courier,monospace;"><span
+ style="font-weight: bold;">uint8_t</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; font-family: Courier New,Courier,monospace; background-color: rgb(238, 238, 238); text-align: left;"><span
+ style="font-weight: bold;">&nbsp;u8</span> (8-bits unsigned integer)<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; font-family: Courier New,Courier,monospace; background-color: rgb(238, 238, 238);">signed
+char<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; font-family: Courier New,Courier,monospace; background-color: rgb(238, 238, 238);"><span
+ style="font-weight: bold;">int8_t</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 204, 204); font-family: Courier New,Courier,monospace; text-align: left;"><span
+ style="font-weight: bold;">s16</span> (16-bits signed integer)<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; background-color: rgb(204, 204, 204); font-family: Courier New,Courier,monospace;">unsigned
+short<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; background-color: rgb(204, 204, 204); font-family: Courier New,Courier,monospace;"><span
+ style="font-weight: bold;">uint16_t</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; font-family: Courier New,Courier,monospace; background-color: rgb(238, 238, 238); text-align: left;"><span
+ style="font-weight: bold;">u16</span> (16-bits unsigned integer)<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; font-family: Courier New,Courier,monospace; background-color: rgb(238, 238, 238);">signed
+short<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; font-family: Courier New,Courier,monospace; background-color: rgb(238, 238, 238);"><span
+ style="font-weight: bold;">int16_t</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 204, 204); font-family: Courier New,Courier,monospace; text-align: left;"><span
+ style="font-weight: bold;">s32</span> (32-bits signed integer)<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; background-color: rgb(204, 204, 204); font-family: Courier New,Courier,monospace;">unsigned
+long<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; background-color: rgb(204, 204, 204); font-family: Courier New,Courier,monospace;"><span
+ style="font-weight: bold;">uint32_t</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; font-family: Courier New,Courier,monospace; background-color: rgb(238, 238, 238); text-align: left;"><span
+ style="font-weight: bold;">u32</span> (32-bits unsigned integer)<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; font-family: Courier New,Courier,monospace; background-color: rgb(238, 238, 238);">signed
+long<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: right; font-family: Courier New,Courier,monospace; background-color: rgb(238, 238, 238);"><span
+ style="font-weight: bold;">int32_t</span><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h5>Generated Enum Values<br>
+</h5>
+The valid values of enumeration types are generated. Such generated
+values can be used for get and set methods.
+The user's code in such case can look like:<br>
+<blockquote><tt>const TestModule&amp; obj;<br>
+if(obj.</tt><tt>get_Frequency() == </tt><tt>TestModule</tt><tt>::</tt><tt>Frequency</tt><tt>::Low)
+{ ... }<br>
+else if(obj.</tt><tt>get_Frequency</tt><tt>() == </tt><tt>TestModule</tt><tt>::</tt><tt>Frequency</tt><tt>::High</tt><tt>)
+{ ... }<br>
+else </tt><tt>if(obj.</tt><tt>get_Frequency</tt><tt>() == </tt><tt>TestModule</tt><tt>::</tt><tt>Frequency</tt><tt>::Default</tt><tt>)
+{ ... }<br>
+else ...<br>
+  </tt></blockquote>
+instead of:<br>
+<blockquote><tt></tt><tt>const TestModule&amp; obj;</tt><br>
+  <tt>if(obj.</tt><tt>get_Frequency() == "low"</tt><tt>)
+{ ... }</tt><br>
+  <tt>else if(obj.</tt><tt>get_Frequency</tt><tt>() == </tt><tt>"</tt><tt>High</tt><tt>")
+{ ... }</tt><br>
+  <tt>else </tt><tt>if(obj.</tt><tt>get_Frequency</tt><tt>() == </tt><tt>"</tt><tt>default</tt><tt>"</tt><tt></tt><tt>)
+{ ... }</tt><br>
+  <tt>else ...</tt><br>
+  <tt> </tt>
+  <blockquote></blockquote>
+</blockquote>
+This allows to write more safe code from the following points of view:<br>
+<ul>
+  <li>reduce chances of various typos,</li>
+  <li>be informed during compilation if used enumeration value was
+removed (i.e. get compilation error instead of run-time error or wrong
+program behavior).</li>
+</ul>
+Also, this simplifies possible future replacement of strings used for
+enumeration by more appropriate C++ enum type (using new code no
+changes from user side will be need at all).<br>
+<br>
+The valid values are generated as const strings put inside wrapper type
+(<span style="font-style: italic;">struct</span>)
+with name of attribute. To avoid clushes with C++ keywords and to
+satisfy variable name syntax requrements, the following rules are
+applied:<br>
+<ul>
+  <li>names of attribute and valid values are capitalized</li>
+  <li>names of attribute and valid values started from non-alpha
+characted (e.g. digit) is prefixed by undescore symbol<br>
+  </li>
+</ul>
+Example of generated code for TestModule::frequency enum
+attribute with range="default,low,High,1KHz,5KHz":<font color="#006600"><br>
+</font>
+<blockquote><tt><font color="#006600">&nbsp;/**</font></tt><br>
+  <tt><font color="#006600">&nbsp; *&nbsp; Valid enumeration values for
+get and
+set "Frequency" attribute methods.</font></tt><br>
+  <tt><font color="#006600">&nbsp; */</font></tt><br>
+  <br>
+  <tt>struct <b>Frequency</b> {</tt><br>
+  <tt>&nbsp; static const std::string <b>Default</b>;</tt><br>
+  <tt>&nbsp; static const std::string <b>Low</b>;</tt><br>
+  <tt>&nbsp; static const std::string <b>High</b>;</tt><br>
+  <tt>&nbsp; static const std::string <b>_1KHz</b>;<br>
+&nbsp;</tt><tt> static const std::string <b>_5KHz</b>;</tt><br>
+  <tt>};</tt><tt></tt><br>
+</blockquote>
+<h4>Java Changes</h4>
+The generated methods of DAL
+classes are synchronized for multi-thread safety.<br>
+<br>
+<br>
+<br>
+</body>
+</html>

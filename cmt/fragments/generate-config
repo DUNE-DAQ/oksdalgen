@@ -1,0 +1,74 @@
+# calculate optional parameters
+# such parameters must be defined as macros in the requirement file,
+# if they have more than one value, e.g.:
+#  macro  generate-config-include-dirs "/dir-X /dir-Y /dir-Z"
+#  macro  generate-config-classes "class-A class-B class-C"
+
+ifneq "$(generate-config-include-dirs)" ""
+  op1=-I ${generate-config-include-dirs}
+endif
+
+ifneq "$(generate-config-classes)" ""
+  op2=-c ${generate-config-classes}
+endif
+
+ifeq "${packagename}" ""
+  packagename=${package}
+endif
+
+ifeq "${include}" ""
+  include=$(subst ::,/,${namespace})
+endif
+hpp_dir=$(bin)$(include)
+
+ifeq "${cppdir}" ""
+  cppdir=${CONSTITUENT}.tmp
+endif
+cpp_dir=$(bin)$(cppdir)
+
+ifeq "${javadir}" ""
+  javadir=${CONSTITUENT}.tmp
+endif
+java_dir=$(bin)$(javadir)/$(subst .,/,${packagename})
+
+#working dir
+w_dir=$(bin).__${CONSTITUENT}.genconfig__
+
+#info file
+work_info_file=$(w_dir)/genconfig.info
+inst_info_file=${prefix}/share/data/${packagename}/genconfig.info
+
+# for RPM lists
+install_dir_rpm=installed/share/data/${packagename}
+
+#install dir for generated java files
+inst_java_dir=${prefix}/share/data/genconfig/java/$(subst .,/,${packagename})
+
+cpp_op=-n ${namespace} -i ${include} -d "$(w_dir)"
+java_op=-p ${packagename} -j ${java_dir}
+
+SCHEMES=$(subst :, ${FILEPATH},${FULLNAME})
+
+${CONSTITUENT} :: $(bin)${CONSTITUENT}.stamp
+
+$(bin)${CONSTITUENT}.stamp : $(SCHEMES)
+	mkdir -p "$(w_dir)" "$(cpp_dir)" "$(hpp_dir)" "$(java_dir)" "$(cpp_dir)/dump" "${prefix}/share/data/${packagename}" "$(inst_java_dir)"
+	genconfig $(cpp_op) $(java_op) -s $(SCHEMES) -f $(work_info_file) $(op1) $(op2)
+	mv $(w_dir)/dump_*.cpp "$(cpp_dir)/dump"
+	mv $(w_dir)/*.cpp "$(cpp_dir)"
+	mv $(w_dir)/*.h "$(hpp_dir)"
+	if [ "${no-info-file}" != "yes" ] ; then                       \
+          install -m 444 $(work_info_file) $(inst_info_file) ;         \
+          echo '"'/${project_inst_dir}/${install_dir_rpm}/genconfig.info'"' >> inst_files.noarch ;          \
+          echo %dir '"'/${project_inst_dir}/${install_dir_rpm}'"' >> inst_files.noarch ;  \
+          echo %dir '"'/${project_inst_dir}/installed/share/data'"' >> inst_files.noarch ;  \
+          echo %dir '"'/${project_inst_dir}/installed/share'"' >> inst_files.noarch ;       \
+          echo %dir '"'/${project_inst_dir}'"' >> inst_files.noarch ;             \
+        fi
+	for i in `find "$(java_dir)" -type f` ; do install -m 444 $$i "$(inst_java_dir)"; done
+	touch $(bin)${CONSTITUENT}.stamp
+	rm -rf "$(w_dir)"
+
+${CONSTITUENT}clean ::
+	rm -rf "$(cpp_dir)" "$(hpp_dir)" "$(java_dir)"
+	rm -f $(bin)${CONSTITUENT}.stamp
