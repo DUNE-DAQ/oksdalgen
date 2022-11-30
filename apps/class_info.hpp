@@ -1,11 +1,13 @@
 #ifndef __GENCONFIG_CLASS_INFO__
 #define __GENCONFIG_CLASS_INFO__
 
+#include "oks/class.hpp"
+
 #include <map>
 #include <ostream>
 #include <set>
 #include <string>
-#include <oks/class.h>
+
 
 class ClassInfo {
 

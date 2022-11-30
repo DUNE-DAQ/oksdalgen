@@ -1,3 +1,9 @@
+
+#include "class_info.hpp"
+
+#include "oks/kernel.hpp"
+#include "oks/method.hpp"
+
 #include <ctype.h>
 
 #include <algorithm>
@@ -5,12 +11,6 @@
 #include <initializer_list>
 #include <iomanip>
 #include <iostream>
-
-#include <oks/kernel.h>
-#include <oks/method.h>
-
-#include "class_info.h"
-
 
   /**
    *  The functions cvt_symbol() and alnum_name() are used

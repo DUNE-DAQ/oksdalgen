@@ -1,3 +1,11 @@
+#include "class_info.hpp"
+
+#include "oks/kernel.hpp"
+#include "oks/class.hpp"
+#include "oks/attribute.hpp"
+#include "oks/relationship.hpp"
+#include "oks/method.hpp"
+
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -6,15 +14,6 @@
 #include <list>
 #include <set>
 #include <iostream>
-
-#include <oks/kernel.h>
-#include <oks/class.h>
-#include <oks/attribute.h>
-#include <oks/relationship.h>
-#include <oks/method.h>
-
-#include "class_info.h"
-
 
   // declare external functions
 
