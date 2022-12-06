@@ -2462,7 +2462,7 @@ main(int argc, char *argv[])
           std::string iname(get_java_impl_name(name));     // implementation
           std::string hname(get_java_helper_name(name));   // helper
 
-          std::string cpp_hdr_name = cpp_dir_name + "/" + name + ".h";
+          std::string cpp_hdr_name = cpp_dir_name + "/" + name + ".hpp";
           std::string cpp_src_name = cpp_dir_name + "/" + name + ".cpp";
           std::string java_h_name = java_dir_name + "/" + name + ".java";
           std::string java_i_name = java_dir_name + "/" + iname + ".java";
