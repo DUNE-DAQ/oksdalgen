@@ -146,7 +146,7 @@ gen_header(const OksClass *cl,
       for (const auto& i : *super_list)
         {
           OksClass * c = cl->get_kernel()->find_class(*i);
-          cpp_file << "#include \"" << get_include_dir(c, cl_info, cpp_hdr_dir) << ".h\"\n";
+          cpp_file << "#include \"" << get_include_dir(c, cl_info, cpp_hdr_dir) << ".hpp\"\n";
         }
     }
 
@@ -883,7 +883,7 @@ set2out(std::ostream& out, const std::set<std::string>& data, bool& is_first)
 static void
 gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_name, const std::string& cpp_hdr_dir, const ClassInfo::Map& cl_info)
 {
-  cpp_s << "#include <ers/ers.h>\n\n";
+  cpp_s << "#include \"logging/Logging.hpp\"\n\n";
 
   const std::string name(alnum_name(cl->get_name()));
   const std::string iname(get_java_impl_name(name));;
@@ -966,7 +966,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
 
       for (const auto& j : rclasses)
         {
-          cpp_s << "#include \"" << get_include_dir(j, cl_info, cpp_hdr_dir) << ".h\"\n";
+          cpp_s << "#include \"" << get_include_dir(j, cl_info, cpp_hdr_dir) << ".hpp\"\n";
         }
 
       cpp_s << std::endl << std::endl;
@@ -1228,7 +1228,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
         cpp_s << std::endl;
     }
 
-  cpp_s << dx << "  ERS_DEBUG(5, \"read object \" << this << \" (class \" << s_class_name << \')\');\n";
+  cpp_s << dx << "  TLOG_DEBUG(5) << \"read object \" << this << \" (class \" << s_class_name << \')\';\n";
 
     // put try / catch only if there are attributes or relationships to be initialized
   const std::list<OksAttribute*> *alist = cl->direct_attributes();
@@ -2191,8 +2191,8 @@ gen_cpp_header_prologue(const std::string& file_name,
     "#include <map>\n"
     "#include <vector>\n\n"
 
-    "#include <config/Configuration.h>\n"
-    "#include <config/DalObject.h>\n\n";
+    "#include \"config/Configuration.hpp\"\n"
+    "#include \"config/DalObject.hpp\"\n\n";
 }
 
 
@@ -2284,15 +2284,15 @@ gen_cpp_body_prologue(const std::string& file_name,
                       const std::string& cpp_hdr_dir)
 {
   src <<
-    "#include <config/ConfigObject.h>\n"
-    "#include <config/DalFactory.h>\n"
-    "#include <config/DalObjectPrint.h>\n"
-    "#include <config/Errors.h>\n"
+    "#include \"config/ConfigObject.hpp\"\n"
+    "#include \"config/DalFactory.hpp\"\n"
+    "#include \"config/DalObjectPrint.hpp\"\n"
+    "#include \"config/Errors.hpp\"\n"
     "#include \"";
     if(cpp_hdr_dir != "") {
       src <<  cpp_hdr_dir << "/";
     }
-    src << file_name << ".h\"\n\n";
+    src << file_name << ".hpp\"\n\n";
 }
 
 
@@ -2545,7 +2545,7 @@ main(int argc, char *argv[])
             const char * main_function_prologue;
           } confs[] =
             {
-              { 0, "config/Configuration.h", 0, "#include <ipc/core.h>", "IPCCore::init(argc, argv);" } };
+              { 0, "config/Configuration.hpp", 0, "#include <ipc/core.h>", "IPCCore::init(argc, argv);" } };
 
           for (unsigned int i = 0; i < sizeof(confs) / sizeof(ConfigurationImplementations); ++i)
             {
