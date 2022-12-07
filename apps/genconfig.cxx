@@ -2545,7 +2545,7 @@ main(int argc, char *argv[])
             const char * main_function_prologue;
           } confs[] =
             {
-              { 0, "config/Configuration.hpp", 0, "#include <ipc/core.h>", "IPCCore::init(argc, argv);" } };
+              { 0, "config/Configuration.hpp", 0, "", "" } };
 
           for (unsigned int i = 0; i < sizeof(confs) / sizeof(ConfigurationImplementations); ++i)
             {
