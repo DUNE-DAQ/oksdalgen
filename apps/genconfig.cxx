@@ -491,7 +491,7 @@ gen_header(const OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\return the attribute value\n";
-                  description2 += "\\throw daq::config::Generic, daq::config::DeletedObject\n";
+                  description2 += "\\throw dunedaq::config::Generic, dunedaq::config::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -541,7 +541,7 @@ gen_header(const OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\param value  new attribute value\n";
-                  description2 += "\\throw daq::config::Generic, daq::config::DeletedObject\n";
+                  description2 += "\\throw dunedaq::config::Generic, dunedaq::config::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -654,7 +654,7 @@ gen_header(const OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\return the relationship value\n";
-                  description2 += "\\throw daq::config::Generic, daq::config::DeletedObject\n";
+                  description2 += "\\throw dunedaq::config::Generic, dunedaq::config::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -695,7 +695,7 @@ gen_header(const OksClass *cl,
                           << dx << "        {\n"
                           << dx << "          std::ostringstream text;\n"
                           << dx << "          text << \"relationship \\\"\" << s_" << rname << " << \"\\\" of object \" << this << \" is not set\";\n"
-                          << dx << "          throw daq::config::Generic(ERS_HERE, text.str().c_str());\n"
+                          << dx << "          throw dunedaq::config::Generic(ERS_HERE, text.str().c_str());\n"
                           << dx << "        }\n";
                     }
                   else
@@ -705,7 +705,7 @@ gen_header(const OksClass *cl,
                           << dx << "        {\n"
                           << dx << "          std::ostringstream text;\n"
                           << dx << "          text << \"relationship \\\"\" << s_" << rname << " << \"\\\" of object \" << this << \" is empty\";\n"
-                          << dx << "          throw daq::config::Generic(ERS_HERE, text.str().c_str());\n"
+                          << dx << "          throw dunedaq::config::Generic(ERS_HERE, text.str().c_str());\n"
                           << dx << "        }\n";
                     }
                 }
@@ -728,7 +728,7 @@ gen_header(const OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\param value  new relationship value\n";
-                  description2 += "\\throw daq::config::Generic, daq::config::DeletedObject\n";
+                  description2 += "\\throw dunedaq::config::Generic, dunedaq::config::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -1188,7 +1188,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
     }
 
   cpp_s << dx << "  }\n"
-        << dx << "  catch (daq::config::Exception & ex) {\n"
+        << dx << "  catch (dunedaq::config::Exception & ex) {\n"
         << dx << "    DalObject::p_error(s, ex);\n"
 	<< dx << "  }\n"
         << dx << "}\n\n\n";
@@ -1271,7 +1271,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
 
       cpp_s
         << dx << "  }\n"
-        << dx << "  catch (daq::config::Exception & ex) {\n"
+        << dx << "  catch (dunedaq::config::Exception & ex) {\n"
         << dx << "    throw_init_ex(ex);\n"
         << dx << "  }\n";
 
