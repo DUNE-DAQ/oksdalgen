@@ -112,7 +112,7 @@ function(daq_generate_dal)
      COMMAND cp -f ${cpp_dir}/*.hpp ${hpp_dir}/
      COMMAND cp -f ${cpp_dir}/dump*.cpp ${cpp_dir}/dump
      COMMAND cp genconfig.info genconfig_${config_opts_TARGET}/
-     DEPENDS ${schemas} ${config_dependencies} ${tmp_target})
+     DEPENDS ${schemas} ${config_dependencies} ${tmp_target} ${GENCONFIG_DEPENDS})
 
    add_custom_target(${config_opts_TARGET} ALL DEPENDS ${cpp_source} )
 
