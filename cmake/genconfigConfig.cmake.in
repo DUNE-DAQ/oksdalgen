@@ -27,8 +27,8 @@ set(@PROJECT_NAME@_DAQSHARE "${CMAKE_CURRENT_LIST_DIR}/../../../share")
 set(GENCONFIG_BINARY "${CMAKE_CURRENT_LIST_DIR}/../../../bin")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
-#set(GENCONFIG_BINARY "@CMAKE_INSTALL_PREFIX@/bin" )
-#list(APPEND CMAKE_MODULE_PATH "@CMAKE_INSTALL_PREFIX@/lib64/genconfig/cmake/" )
+set_and_check(targets_file ${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake)
+include(${targets_file})
 
 endif()
 
