@@ -96,6 +96,11 @@ function(daq_generate_dal)
    
    separate_arguments(cpp_source)
 
+   if (NOT TARGET genconfig)
+     add_custom_target( genconfig )
+     add_dependencies( genconfig genconfig::genconfig)
+   endif()
+
    set(GENCONFIG_DEPENDS genconfig)
 
    set(tmp_target MKTMP_${config_opts_TARGET})
