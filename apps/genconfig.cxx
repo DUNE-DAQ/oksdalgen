@@ -77,25 +77,25 @@ gen_java_any_class(std::ostream& s, const std::string& java_pack_name)
   s <<
     "package " << java_pack_name << ";\n"
     "\n"
-    "  // import configuration classes\n"
+    "  // import oksdbinterfacesuration classes\n"
     "\n"
-    "import config.Configuration;\n"
-    "import config.DalObject;\n"
+    "import oksdbinterfaces.Configuration;\n"
+    "import oksdbinterfaces.DalObject;\n"
     "\n"
     "public class __AnyObject__ {\n"
     "\n"
-    "  public static config.DalObject get(config.Configuration db, String class_name, String object_id) throws config.SystemException, config.NotFoundException {\n"
+    "  public static oksdbinterfaces.DalObject get(oksdbinterfaces.Configuration db, String class_name, String object_id) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException {\n"
     "\n"
     "    try {\n"
     "      Class c = Class.forName(\"" << java_pack_name <<".\" + class_name + \"_Impl\");\n"
     "\n"
-    "      config.DalObject dal_obj = (config.DalObject)db.get(class_name, object_id);\n"
+    "      oksdbinterfaces.DalObject dal_obj = (oksdbinterfaces.DalObject)db.get(class_name, object_id);\n"
     "\n"
     "      if(dal_obj == null) {\n"
-    "        config.ConfigObject conf_obj = db.get_object(class_name, object_id);\n"
+    "        oksdbinterfaces.ConfigObject conf_obj = db.get_object(class_name, object_id);\n"
     "        if(conf_obj != null) {\n"
-    "          config.DalObject o = (config.DalObject)c.newInstance();\n"
-    "          o.init_config_params(db, conf_obj, conf_obj.UID());\n"
+    "          oksdbinterfaces.DalObject o = (oksdbinterfaces.DalObject)c.newInstance();\n"
+    "          o.init_oksdbinterfaces_params(db, conf_obj, conf_obj.UID());\n"
     "          db.add(class_name, object_id, o);\n"
     "          return o;\n"
     "        }\n"
@@ -105,15 +105,15 @@ gen_java_any_class(std::ostream& s, const std::string& java_pack_name)
     "      }\n"
     "    }\n"
     "    catch(final ClassNotFoundException | IllegalAccessException | InstantiationException ex) {\n"
-    "      throw new config.SystemException(ex);\n"
+    "      throw new oksdbinterfaces.SystemException(ex);\n"
     "    }\n"
     "\n"
     "    return null;\n"
     "  }\n"
     "\n"
-    "  public static config.DalObject[] get(config.Configuration db, String class_name, config.Query query) throws config.SystemException, config.NotFoundException {\n"
-    "    config.ConfigObject[] objs = db.get_objects(class_name, query);\n"
-    "    config.DalObject[] result = new config.DalObject[objs.length];\n"
+    "  public static oksdbinterfaces.DalObject[] get(oksdbinterfaces.Configuration db, String class_name, oksdbinterfaces.Query query) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException {\n"
+    "    oksdbinterfaces.ConfigObject[] objs = db.get_objects(class_name, query);\n"
+    "    oksdbinterfaces.DalObject[] result = new oksdbinterfaces.DalObject[objs.length];\n"
     "\n"
     "    for (int i = 0; i < objs.length; i++) {\n"
     "      result[i] = get(db, class_name, objs[i].UID());\n"
@@ -233,11 +233,11 @@ gen_header(const OksClass *cl,
       "<p>\n"
       "The methods can throw several exceptions:\n"
       "<ul>\n"
-      " <li><code>config.NotFoundException</code> - in case of wrong attribute or relationship name (e.g. in case of database schema modification)\n"
-      " <li><code>config.SystemException</code> - in case of system problems (communication or implementation database failure, schema modification, object destruction, etc.)\n"
+      " <li><code>oksdbinterfaces.NotFoundException</code> - in case of wrong attribute or relationship name (e.g. in case of database schema modification)\n"
+      " <li><code>oksdbinterfaces.SystemException</code> - in case of system problems (communication or implementation database failure, schema modification, object destruction, etc.)\n"
       "</ul>\n"
       "<p>\n"
-      "In addition the methods modifying database (set value, destroy object) can throw <code>config.NotAllowedException</code> "
+      "In addition the methods modifying database (set value, destroy object) can throw <code>oksdbinterfaces.NotAllowedException</code> "
       "exception in case, if there are no write access rights or database is already locked by other process.\n";
 
     if (!cl->get_description().empty())
@@ -258,7 +258,7 @@ gen_header(const OksClass *cl,
     // generate class declaration itself
 
   cpp_file << dx << "class " << name << " : ";
-  java_file << "public interface " << name << " extends config.DalObject";
+  java_file << "public interface " << name << " extends oksdbinterfaces.DalObject";
 
 
     // generate inheritance list
@@ -300,11 +300,11 @@ gen_header(const OksClass *cl,
   print_description(
     java_file,
     "Method to destroy object.\n"
-    "@param db     configuration object\n",
+    "@param db     oksdbinterfacesuration object\n",
     "  "
   );
 
-  java_file << "  void destroy(config.Configuration db) throws config.SystemException, config.NotFoundException, config.NotAllowedException;\n";
+  java_file << "  void destroy(oksdbinterfaces.Configuration db) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotAllowedException;\n";
 
 
 
@@ -318,7 +318,7 @@ gen_header(const OksClass *cl,
     << dx << "    virtual ~" << name << "() noexcept;\n"
     << dx << "    virtual void init(bool init_children);\n\n"
     << dx << "  public:\n\n"
-    << dx << "      /** The name of the configuration class. */\n\n"
+    << dx << "      /** The name of the oksdbinterfacesuration class. */\n\n"
     << dx << "    static const std::string& s_class_name;\n\n\n"
     << dx << "      /**\n"
     << dx << "       * \\brief Print details of the " << name << " object.\n"
@@ -491,7 +491,7 @@ gen_header(const OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\return the attribute value\n";
-                  description2 += "\\throw dunedaq::config::Generic, dunedaq::config::DeletedObject\n";
+                  description2 += "\\throw dunedaq::oksdbinterfaces::Generic, dunedaq::oksdbinterfaces::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -526,7 +526,7 @@ gen_header(const OksClass *cl,
                   << dx << "        check_init();\n"
                   << dx << "        return m_" << aname << ";\n"
                   << dx << "      }\n\n";
-              java_file << "get_" << aname << "() throws config.GenericException, config.NotFoundException, config.NotValidException, config.SystemException;\n\n";
+              java_file << "get_" << aname << "() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException;\n\n";
 
               // generate set method description
 
@@ -541,7 +541,7 @@ gen_header(const OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\param value  new attribute value\n";
-                  description2 += "\\throw dunedaq::config::Generic, dunedaq::config::DeletedObject\n";
+                  description2 += "\\throw dunedaq::oksdbinterfaces::Generic, dunedaq::oksdbinterfaces::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -575,7 +575,7 @@ gen_header(const OksClass *cl,
                 << dx << "        clear();\n"
                 << dx << "        p_obj.";
 
-              java_file << " value) throws config.NotFoundException, config.NotValidException, config.NotAllowedException, config.SystemException;\n";
+              java_file << " value) throws oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.SystemException;\n";
 
               if (i->get_data_type() == OksData::string_type && i->get_is_multi_values() == false)
                 {
@@ -654,7 +654,7 @@ gen_header(const OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\return the relationship value\n";
-                  description2 += "\\throw dunedaq::config::Generic, dunedaq::config::DeletedObject\n";
+                  description2 += "\\throw dunedaq::oksdbinterfaces::Generic, dunedaq::oksdbinterfaces::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -695,7 +695,7 @@ gen_header(const OksClass *cl,
                           << dx << "        {\n"
                           << dx << "          std::ostringstream text;\n"
                           << dx << "          text << \"relationship \\\"\" << s_" << rname << " << \"\\\" of object \" << this << \" is not set\";\n"
-                          << dx << "          throw dunedaq::config::Generic(ERS_HERE, text.str().c_str());\n"
+                          << dx << "          throw dunedaq::oksdbinterfaces::Generic(ERS_HERE, text.str().c_str());\n"
                           << dx << "        }\n";
                     }
                   else
@@ -705,7 +705,7 @@ gen_header(const OksClass *cl,
                           << dx << "        {\n"
                           << dx << "          std::ostringstream text;\n"
                           << dx << "          text << \"relationship \\\"\" << s_" << rname << " << \"\\\" of object \" << this << \" is empty\";\n"
-                          << dx << "          throw dunedaq::config::Generic(ERS_HERE, text.str().c_str());\n"
+                          << dx << "          throw dunedaq::oksdbinterfaces::Generic(ERS_HERE, text.str().c_str());\n"
                           << dx << "        }\n";
                     }
                 }
@@ -713,7 +713,7 @@ gen_header(const OksClass *cl,
               cpp_file
                   << dx << "      return m_" << rname << ";\n"
                   << dx << "    }\n\n\n";
-              java_file << " get_" << rname << "() throws config.GenericException, config.NotFoundException, config.NotValidException, config.SystemException;\n\n";
+              java_file << " get_" << rname << "() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException;\n\n";
 
               // generate set method
 
@@ -728,7 +728,7 @@ gen_header(const OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\param value  new relationship value\n";
-                  description2 += "\\throw dunedaq::config::Generic, dunedaq::config::DeletedObject\n";
+                  description2 += "\\throw dunedaq::oksdbinterfaces::Generic, dunedaq::oksdbinterfaces::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -747,7 +747,7 @@ gen_header(const OksClass *cl,
                 }
 
               cpp_file << " value);\n\n";
-              java_file << " value) throws config.NotFoundException, config.NotValidException, config.NotAllowedException, config.SystemException;\n\n";
+              java_file << " value) throws oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.SystemException;\n\n";
             }
         }
     }
@@ -1153,12 +1153,12 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
 
     for(const auto& i : *alist) {
       const std::string aname(alnum_name(i->get_name()));
-      std::string abase = (i->get_format() == OksAttribute::Hex) ? "<::config::hex>" : (i->get_format() == OksAttribute::Oct) ? "<::config::oct>" : "";
+      std::string abase = (i->get_format() == OksAttribute::Hex) ? "<::oksdbinterfaces::hex>" : (i->get_format() == OksAttribute::Oct) ? "<::oksdbinterfaces::oct>" : "";
 
       if (i->get_is_multi_values())
-        cpp_s << dx << "    ::config::p_mv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
+        cpp_s << dx << "    ::oksdbinterfaces::p_mv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
       else
-        cpp_s << dx << "    ::config::p_sv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
+        cpp_s << dx << "    ::oksdbinterfaces::p_sv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
     }
   }
 
@@ -1173,22 +1173,22 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
           if (i->get_high_cardinality_constraint() == OksRelationship::Many)
             {
               if (i->get_is_composite())
-                cpp_s << dx << "    ::config::p_mv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx << "    ::oksdbinterfaces::p_mv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
               else
-                cpp_s << dx << "    ::config::p_mv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx << "    ::oksdbinterfaces::p_mv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
             }
           else
             {
               if (i->get_is_composite())
-                cpp_s << dx <<"    ::config::p_sv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx <<"    ::oksdbinterfaces::p_sv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
               else
-                cpp_s << dx <<"    ::config::p_sv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx <<"    ::oksdbinterfaces::p_sv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
             }
         }
     }
 
   cpp_s << dx << "  }\n"
-        << dx << "  catch (dunedaq::config::Exception & ex) {\n"
+        << dx << "  catch (dunedaq::oksdbinterfaces::Exception & ex) {\n"
         << dx << "    DalObject::p_error(s, ex);\n"
 	<< dx << "  }\n"
         << dx << "}\n\n\n";
@@ -1271,7 +1271,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
 
       cpp_s
         << dx << "  }\n"
-        << dx << "  catch (dunedaq::config::Exception & ex) {\n"
+        << dx << "  catch (dunedaq::oksdbinterfaces::Exception & ex) {\n"
         << dx << "    throw_init_ex(ex);\n"
         << dx << "  }\n";
 
@@ -1451,11 +1451,11 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
         "<p>\n"
         "If something goes wrong the methods can throw several exceptions:\n"
         "<ul>\n"
-        " <li><code>config.NotFoundException</code> - in case if given class or object can not be found\n"
-        " <li><code>config.SystemException</code> - if case of system problems (communication or implementation database failure, etc.)\n"
+        " <li><code>oksdbinterfaces.NotFoundException</code> - in case if given class or object can not be found\n"
+        " <li><code>oksdbinterfaces.SystemException</code> - if case of system problems (communication or implementation database failure, etc.)\n"
         "</ul>\n"
         "<p>\n"
-        "In addition the methods to create object can throw <code>config.NotAllowedException</code> "
+        "In addition the methods to create object can throw <code>oksdbinterfaces.NotAllowedException</code> "
         "exception in case, if there are no write access rights or database is already locked by other process.\n"
         "\n"
         "@author genconfig\n";
@@ -1466,10 +1466,10 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
   s << "public class " << hname << " {\n\n";
 
     {
-      std::string d("Method to get an object by config object.\n"
-          "It is used by the config.Configuration class.\n"
-          "@param db   configuration object\n"
-          "@param obj  config object\n"
+      std::string d("Method to get an object by oksdbinterfaces object.\n"
+          "It is used by the oksdbinterfaces.Configuration class.\n"
+          "@param db   oksdbinterfacesuration object\n"
+          "@param obj  oksdbinterfaces object\n"
           "@return     object of ");
       d += name;
       d += " class\n";
@@ -1478,7 +1478,7 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
     }
 
   s <<
-    "  static public " << name << " get(config.Configuration db, config.ConfigObject obj) {\n"
+    "  static public " << name << " get(oksdbinterfaces.Configuration db, oksdbinterfaces.ConfigObject obj) {\n"
     "    if(obj == null) { return null; }\n"
     "    synchronized(db) {\n"
     "      " << iname << " o = (" << iname << ")db.get(\"" << name << "\", obj);\n"
@@ -1491,7 +1491,7 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
     "  }\n"
     "\n"
     "\n"
-    "  static public " << name << " get(config.Configuration db, config.ConfigObject obj, String id) {\n"
+    "  static public " << name << " get(oksdbinterfaces.Configuration db, oksdbinterfaces.ConfigObject obj, String id) {\n"
     "    if(obj == null) { return null; }\n"
     "    synchronized(db) {\n"
     "      " << iname << " o = (" << iname << ")db.get(\"" << name << "\", id);\n"
@@ -1509,19 +1509,19 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
       std::string d("Method to casts existing object to object of ");
       d += name;
       d += " class.\n"
-          "@param db   configuration object\n"
-          "@param obj  config object\n\n"
+          "@param db   oksdbinterfacesuration object\n"
+          "@param obj  oksdbinterfaces object\n\n"
           "@return     object of ";
       d += name;
       d += " class\n\n"
-          "@deprecated use {@link #cast(config.DalObject)} instead.";
+          "@deprecated use {@link #cast(oksdbinterfaces.DalObject)} instead.";
 
       print_description(s, d, "  ");
     }
 
   s <<
     "  @Deprecated\n"
-    "  static public " << name << " cast(config.Configuration db, config.DalObject obj) {\n"
+    "  static public " << name << " cast(oksdbinterfaces.Configuration db, oksdbinterfaces.DalObject obj) {\n"
     "    return cast(obj);\n"
     "  }\n"
     "\n"
@@ -1531,7 +1531,7 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
       std::string d("Method to casts existing object to object of ");
       d += name;
       d += " class.\n"
-          "@param obj config object\n"
+          "@param obj oksdbinterfaces object\n"
           "@return    object of ";
       d += name;
       d += " class\n\n";
@@ -1540,14 +1540,14 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
     }
 
   s <<
-    "  static public " << name << " cast(config.DalObject obj) {\n"
-    "    synchronized(obj.configuration_object()) {\n"
-    "      if(obj == null || obj.configuration_object().try_cast(obj.class_name(), \"" + name + "\") == false) { return null; }\n"
+    "  static public " << name << " cast(oksdbinterfaces.DalObject obj) {\n"
+    "    synchronized(obj.oksdbinterfacesuration_object()) {\n"
+    "      if(obj == null || obj.oksdbinterfacesuration_object().try_cast(obj.class_name(), \"" + name + "\") == false) { return null; }\n"
     "        // try to read object from cache of generated objects\n"
-    "      " << iname << " o = (" << iname << ")obj.configuration_object().get(\"" << name << "\", obj.UID());\n"
+    "      " << iname << " o = (" << iname << ")obj.oksdbinterfacesuration_object().get(\"" << name << "\", obj.UID());\n"
     "        // if there is no such object in the cache yet, create it\n"
     "      if(o == null) {\n"
-    "        return get(obj.configuration_object(), obj.config_object(), obj.UID());\n"
+    "        return get(obj.oksdbinterfacesuration_object(), obj.config_object(), obj.UID());\n"
     "      }\n"
     "      return o;\n"
     "    }\n"
@@ -1557,8 +1557,8 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
 
     {
       std::string d("Method to get an object by identity.\n"
-          "If no such object, the method throws exception config.NotFoundException.\n"
-          "@param db   configuration object\n"
+          "If no such object, the method throws exception oksdbinterfaces.NotFoundException.\n"
+          "@param db   oksdbinterfacesuration object\n"
           "@param id   identity of the object\n"
           "@return     object of ");
       d += name;
@@ -1568,14 +1568,14 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
     }
 
   s <<
-    "  static public " << name << " get(config.Configuration db, String id) throws config.SystemException, config.NotFoundException {\n"
+    "  static public " << name << " get(oksdbinterfaces.Configuration db, String id) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException {\n"
     "    synchronized(db) {\n"
     "        // check the object is already in cache\n"
     "      " << name << " o = (" << name << ")db.get(\"" << name << "\", id);\n"
     "      if(o != null) return o;\n"
     "\n"
     "        // check the object exists and get it from database\n"
-    "      config.ConfigObject obj = db.get_object(\"" << name << "\", id);\n"
+    "      oksdbinterfaces.ConfigObject obj = db.get_object(\"" << name << "\", id);\n"
     "      return get(db, obj);\n"
     "    }\n"
     "  }\n"
@@ -1587,8 +1587,8 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
       std::string d("Method to get objects of class.\n"
           "If the query is empty, then all objects of class are returned.\n"
           "Otherwise returns objects which satisfy query.\n"
-          "@param db     configuration object\n"
-          "@param query  query (see config.Query)\n"
+          "@param db     oksdbinterfacesuration object\n"
+          "@param query  query (see oksdbinterfaces.Query)\n"
           "@return       vector of objects of ");
       d += name;
       d += " class\n";
@@ -1597,7 +1597,7 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
     }
 
   s <<
-    "  static public " << name << "[] get(config.Configuration db, config.Query query) throws config.SystemException, config.NotFoundException {\n"
+    "  static public " << name << "[] get(oksdbinterfaces.Configuration db, oksdbinterfaces.Query query) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException {\n"
     "    synchronized(db) {\n"
     "      ConfigObject[] objs = db.get_objects(\"" << name << "\", query);\n"
     "      " << name << "[] result = new " << name << "[objs.length];\n"
@@ -1612,7 +1612,7 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
 
   {
       std::string d("Method to create object of this class in given database file.\n"
-          "@param db     configuration object\n"
+          "@param db     oksdbinterfacesuration object\n"
           "@param file   name of the database file\n"
           "@param id     object identity\n"
           "@return       object of ");
@@ -1623,7 +1623,7 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
   }
 
   s <<
-    "  static public " << name << " create(config.Configuration db, String file, String id) throws config.SystemException, config.NotFoundException, config.NotAllowedException, config.AlreadyExistsException {\n"
+    "  static public " << name << " create(oksdbinterfaces.Configuration db, String file, String id) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.AlreadyExistsException {\n"
     "    return get(db, db.create(file, \"" << name << "\", id));\n"
     "  }\n"
     "\n";
@@ -1633,7 +1633,7 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
       std::string d("Method to create an object of ");
       d += name;
       d += " class in database file storing existing object.\n"
-          "@param db     configuration object\n"
+          "@param db     oksdbinterfacesuration object\n"
           "@param at     create new object at the same database where \b 'at' object is stored\n"
           "@param id     object identity\n"
           "@return       object of ";
@@ -1644,7 +1644,7 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
     }
 
   s <<
-    "  static public " << name << " create(config.Configuration db, config.DalObject at, String id) throws config.SystemException, config.NotFoundException, config.NotAllowedException, config.AlreadyExistsException {\n"
+    "  static public " << name << " create(oksdbinterfaces.Configuration db, oksdbinterfaces.DalObject at, String id) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.AlreadyExistsException {\n"
     "    return get(db, db.create(at.config_object(), \"" << name << "\", id));\n"
     "  }\n"
     "\n";
@@ -1672,8 +1672,8 @@ gen_java_implementation(const OksClass *cl,
     "\n"
     "    // base attributes\n"
     "\n"
-    "  private config.Configuration p_db;\n"
-    "  private config.ConfigObject p_obj;\n"
+    "  private oksdbinterfaces.Configuration p_db;\n"
+    "  private oksdbinterfaces.ConfigObject p_obj;\n"
     "  private boolean p_was_read;\n"
     "  private String p_uid;\n"
     "  private String p_class_name;\n\n";
@@ -1727,15 +1727,15 @@ gen_java_implementation(const OksClass *cl,
     "    p_obj = null;\n"
     "  }\n"
     "\n"
-    "  public " << iname << "(config.Configuration db, config.ConfigObject obj) {\n"
-    "    init_config_params(db, obj, obj.UID());\n"
+    "  public " << iname << "(oksdbinterfaces.Configuration db, oksdbinterfaces.ConfigObject obj) {\n"
+    "    init_oksdbinterfaces_params(db, obj, obj.UID());\n"
     "  }\n"
     "\n"
-    "  public " << iname << "(config.Configuration db, config.ConfigObject obj, String id) {\n"
-    "    init_config_params(db, obj, id);\n"
+    "  public " << iname << "(oksdbinterfaces.Configuration db, oksdbinterfaces.ConfigObject obj, String id) {\n"
+    "    init_oksdbinterfaces_params(db, obj, id);\n"
     "  }\n"
     "\n"
-    "  public void init_config_params(config.Configuration db, config.ConfigObject obj, String id) {\n"
+    "  public void init_oksdbinterfaces_params(oksdbinterfaces.Configuration db, oksdbinterfaces.ConfigObject obj, String id) {\n"
     "    p_db = db;\n"
     "    p_obj = obj;\n"
     "    p_was_read = false;\n"
@@ -1750,7 +1750,7 @@ gen_java_implementation(const OksClass *cl,
     "  public String class_name() {\n"
     "    return p_class_name;\n"
     "  }\n\n"
-    "  public void update() throws config.GenericException, config.NotFoundException, config.NotValidException, config.SystemException {\n"
+    "  public void update() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException {\n"
     "    synchronized(p_db) {\n"
     "      p_was_read = false;\n"
     "      p_obj.clean();\n"
@@ -1769,12 +1769,12 @@ gen_java_implementation(const OksClass *cl,
 
   s <<
     "\n\n"
-    "  private void check_validity() throws config.NotValidException {\n"
+    "  private void check_validity() throws oksdbinterfaces.NotValidException {\n"
     "    if(p_obj == null || p_obj.is_valid() == false) {\n"
-    "      throw new config.NotValidException(\"object \" + p_uid + \"@\" + p_class_name + \" is not valid\");\n"
+    "      throw new oksdbinterfaces.NotValidException(\"object \" + p_uid + \"@\" + p_class_name + \" is not valid\");\n"
     "    }\n"
     "  }\n\n"
-    "  private void init() throws config.GenericException, config.NotFoundException, config.NotValidException, config.SystemException {\n"
+    "  private void init() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException {\n"
     "    synchronized(p_db) {\n"
     "      check_validity();\n"
     "      if(p_was_read == true) {return;}\n\n";
@@ -1896,12 +1896,12 @@ gen_java_implementation(const OksClass *cl,
             }
 
           s <<
-              "  public " << java_type << (i->get_is_multi_values() ? "[]" : "") << " get_" << aname << "() throws config.GenericException, config.NotFoundException, config.NotValidException, config.SystemException {\n"
+              "  public " << java_type << (i->get_is_multi_values() ? "[]" : "") << " get_" << aname << "() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException {\n"
               "    check_validity();\n"
               "    if(p_was_read == false) {init();}\n"
               "    return m_" << aname << ";\n"
               "  }\n\n"
-              "  public void set_" << aname << '(' << java_type << (i->get_is_multi_values() ? "[]" : "") << " value) throws config.NotFoundException, config.NotValidException, config.NotAllowedException, config.SystemException {\n"
+              "  public void set_" << aname << '(' << java_type << (i->get_is_multi_values() ? "[]" : "") << " value) throws oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.SystemException {\n"
               "    synchronized(p_db) {\n"
               "      check_validity();\n"
               "      p_obj.clean();\n"
@@ -1920,19 +1920,19 @@ gen_java_implementation(const OksClass *cl,
           std::string full_rel_class_name = get_full_java_class_name(i->get_class_type(), cl_info, java_pack_name);
           const char * rel_ext = (i->get_high_cardinality_constraint() == OksRelationship::Many ? "[]" : "");
 
-          s << "  public " << full_rel_class_name << rel_ext << " get_" << rname << "() throws config.GenericException, config.NotFoundException, config.NotValidException, config.SystemException {\n"
+          s << "  public " << full_rel_class_name << rel_ext << " get_" << rname << "() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException {\n"
               "    check_validity();\n"
               "    if(p_was_read == false) {init();}\n"
               "    return m_" << rname << ";\n"
               "  }\n\n"
-              "  public void set_" << rname << '(' << full_rel_class_name << rel_ext << " value) throws config.NotFoundException, config.NotValidException, config.NotAllowedException, config.SystemException {\n"
+              "  public void set_" << rname << '(' << full_rel_class_name << rel_ext << " value) throws oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.SystemException {\n"
               "    synchronized(p_db) {\n"
               "      check_validity();\n"
               "      p_obj.clean();\n";
 
           if (i->get_high_cardinality_constraint() == OksRelationship::Many)
             {
-              s << "      config.ConfigObject[] objs = new config.ConfigObject[value.length];\n"
+              s << "      oksdbinterfaces.ConfigObject[] objs = new oksdbinterfaces.ConfigObject[value.length];\n"
                   "      for(int i = 0; i < value.length; i++) {\n"
                   "        objs[i] = value[i].config_object();\n"
                   "      }\n"
@@ -1980,13 +1980,13 @@ gen_java_implementation(const OksClass *cl,
 
 
 
-    // generate method returning config object
+    // generate method returning oksdbinterfaces object
 
   s <<
-    "  public config.ConfigObject config_object() {\n"
+    "  public oksdbinterfaces.ConfigObject config_object() {\n"
     "    return p_obj;\n"
     "  }\n\n"
-    "  public config.Configuration configuration_object() {\n"
+    "  public oksdbinterfaces.Configuration oksdbinterfacesuration_object() {\n"
     "    return p_db;\n"
     "  }\n\n";
 
@@ -2057,7 +2057,7 @@ gen_java_implementation(const OksClass *cl,
         s <<
                     "\n"
                     "      }\n"
-                    "      catch (final config.ConfigException ex) {\n"
+                    "      catch (final oksdbinterfaces.ConfigException ex) {\n"
                     "        System.err.println(\"cannot read an attribute: \" + ex.getMessage());\n"
                     "      }\n\n";
       }
@@ -2127,7 +2127,7 @@ gen_java_implementation(const OksClass *cl,
 
        s <<
                     "      }\n"
-                    "      catch (final config.ConfigException ex) {\n"
+                    "      catch (final oksdbinterfaces.ConfigException ex) {\n"
                     "        System.err.println(\"cannot read a relationship: \" + ex.getMessage());\n"
                     "      }\n\n";
       }
@@ -2140,12 +2140,12 @@ gen_java_implementation(const OksClass *cl,
   print_description(
     s,
     "Method to destroy object.\n"
-    "@param db     configuration object\n",
+    "@param db     oksdbinterfacesuration object\n",
     "  "
   );
 
   s <<
-    "  public void destroy(config.Configuration db) throws config.SystemException, config.NotFoundException, config.NotAllowedException {\n"
+    "  public void destroy(oksdbinterfaces.Configuration db) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotAllowedException {\n"
     "    db.destroy(config_object());\n"
     "  }\n";
 
@@ -2191,8 +2191,8 @@ gen_cpp_header_prologue(const std::string& file_name,
     "#include <map>\n"
     "#include <vector>\n\n"
 
-    "#include \"config/Configuration.hpp\"\n"
-    "#include \"config/DalObject.hpp\"\n\n";
+    "#include \"oksdbinterfaces/Configuration.hpp\"\n"
+    "#include \"oksdbinterfaces/DalObject.hpp\"\n\n";
 }
 
 
@@ -2223,8 +2223,8 @@ gen_java_prologue(std::ostream& s,
 
   s <<
     "\n"
-    "  // import configuration classes\n\n"
-    "import config.*;\n\n\n";
+    "  // import oksdbinterfacesuration classes\n\n"
+    "import oksdbinterfaces.*;\n\n\n";
 
 
     // generate import statements
@@ -2284,10 +2284,10 @@ gen_cpp_body_prologue(const std::string& file_name,
                       const std::string& cpp_hdr_dir)
 {
   src <<
-    "#include \"config/ConfigObject.hpp\"\n"
-    "#include \"config/DalFactory.hpp\"\n"
-    "#include \"config/DalObjectPrint.hpp\"\n"
-    "#include \"config/Errors.hpp\"\n"
+    "#include \"oksdbinterfaces/ConfigObject.hpp\"\n"
+    "#include \"oksdbinterfaces/DalFactory.hpp\"\n"
+    "#include \"oksdbinterfaces/DalObjectPrint.hpp\"\n"
+    "#include \"oksdbinterfaces/Errors.hpp\"\n"
     "#include \"";
     if(cpp_hdr_dir != "") {
       src <<  cpp_hdr_dir << "/";
@@ -2545,7 +2545,7 @@ main(int argc, char *argv[])
             const char * main_function_prologue;
           } confs[] =
             {
-              { 0, "config/Configuration.hpp", 0, "", "" } };
+              { 0, "oksdbinterfaces/Configuration.hpp", 0, "", "" } };
 
           for (unsigned int i = 0; i < sizeof(confs) / sizeof(ConfigurationImplementations); ++i)
             {
