@@ -15,37 +15,40 @@
 #include <set>
 #include <iostream>
 
+using namespace dunedaq;
+using namespace dunedaq::genconfig;
+
   // declare external functions
 
 extern std::string alnum_name(const std::string& in);
 extern std::string capitalize_name(const std::string& in);
 extern void print_description(std::ostream& s, const std::string& text, const char * dx);
 extern void print_indented(std::ostream& s, const std::string& text, const char * dx);
-extern std::string get_type(OksData::Type oks_type, bool is_cpp);
+extern std::string get_type(oks::OksData::Type oks_type, bool is_cpp);
 extern std::string get_java_impl_name(const std::string& s);
 extern std::string get_java_helper_name(const std::string& s);
 extern void gen_dump_application(std::ostream& s, std::list<std::string>& class_names, const std::string& cpp_ns_name, const std::string& cpp_hdr_dir, const char * conf_header, const char * conf_name, const char * headres_prologue, const char * main_function_prologue);
-extern void write_info_file(std::ostream& s, const std::string& cpp_namespace, const std::string& cpp_header_dir, const std::string& java_pname, const std::set<const OksClass *, std::less<const OksClass *> >& class_names);
-extern std::string get_full_cpp_class_name(const OksClass * c, const ClassInfo::Map& cl_info, const std::string & cpp_ns_name);
-extern std::string get_full_java_class_name(const OksClass * c, const ClassInfo::Map& cl_info, const std::string & java_p_name);
-extern std::string get_include_dir(const OksClass * c, const ClassInfo::Map& cl_info, const std::string& cpp_hdr_dir);
-extern const std::string& get_package_name(const OksClass * c, const ClassInfo::Map& cl_info, const std::string& java_p_name);
+extern void write_info_file(std::ostream& s, const std::string& cpp_namespace, const std::string& cpp_header_dir, const std::string& java_pname, const std::set<const oks::OksClass *, std::less<const oks::OksClass *> >& class_names);
+extern std::string get_full_cpp_class_name(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string & cpp_ns_name);
+extern std::string get_full_java_class_name(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string & java_p_name);
+extern std::string get_include_dir(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string& cpp_hdr_dir);
+extern const std::string& get_package_name(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string& java_p_name);
 extern void parse_arguments(int argc, char *argv[], std::list<std::string>& class_names, std::list<std::string>& file_names, std::list<std::string>& include_dirs, std::list<std::string>& user_classes, std::string& cpp_dir_name, std::string& cpp_ns_name, std::string& cpp_hdr_dir, std::string& java_dir_name, std::string& java_pack_name, std::string& info_file_name, bool& verbose);
-extern bool process_external_class(ClassInfo::Map& cl_info, const OksClass * c, const std::list<std::string>& include_dirs, const std::list<std::string>& user_classes, bool verbose);
+extern bool process_external_class(ClassInfo::Map& cl_info, const oks::OksClass * c, const std::list<std::string>& include_dirs, const std::list<std::string>& user_classes, bool verbose);
 extern std::string int2dx(int level);
 extern int open_cpp_namespace(std::ostream& s, const std::string& value);
 extern void close_cpp_namespace(std::ostream& s, int level);
-extern std::string add_java_package_names(const std::string& in, const OksKernel * kernel, const ClassInfo::Map& cl_info, const std::string& java_pack_name);
-extern std::string get_method_header_prologue(OksMethodImplementation *);
-extern std::string get_method_header_epilogue(OksMethodImplementation *);
-extern std::string get_public_section(OksMethodImplementation * mi);
-extern std::string get_private_section(OksMethodImplementation * mi);
-extern std::string get_member_initializer_list(OksMethodImplementation * mi);
-extern std::string get_method_implementation_body(OksMethodImplementation * mi);
-extern bool get_add_algo_1(OksMethodImplementation * mi);
-extern bool get_add_algo_n(OksMethodImplementation * mi);
-extern OksMethodImplementation * find_cpp_method_implementation(const OksMethod * method);
-extern OksMethodImplementation * find_java_method_implementation(const OksMethod * method);
+extern std::string add_java_package_names(const std::string& in, const oks::OksKernel * kernel, const ClassInfo::Map& cl_info, const std::string& java_pack_name);
+extern std::string get_method_header_prologue(oks::OksMethodImplementation *);
+extern std::string get_method_header_epilogue(oks::OksMethodImplementation *);
+extern std::string get_public_section(oks::OksMethodImplementation * mi);
+extern std::string get_private_section(oks::OksMethodImplementation * mi);
+extern std::string get_member_initializer_list(oks::OksMethodImplementation * mi);
+extern std::string get_method_implementation_body(oks::OksMethodImplementation * mi);
+extern bool get_add_algo_1(oks::OksMethodImplementation * mi);
+extern bool get_add_algo_n(oks::OksMethodImplementation * mi);
+extern oks::OksMethodImplementation * find_cpp_method_implementation(const oks::OksMethod * method);
+extern oks::OksMethodImplementation * find_java_method_implementation(const oks::OksMethod * method);
 
 
   /**
@@ -54,9 +57,9 @@ extern OksMethodImplementation * find_java_method_implementation(const OksMethod
    */
 
 static bool
-has_superclass(const OksClass * tested, const OksClass * c)
+has_superclass(const oks::OksClass * tested, const oks::OksClass * c)
 {
-  if (const OksClass::FList * sclasses = tested->all_super_classes())
+  if (const oks::OksClass::FList * sclasses = tested->all_super_classes())
     {
       for (const auto& i : *sclasses)
         {
@@ -126,7 +129,7 @@ gen_java_any_class(std::ostream& s, const std::string& java_pack_name)
 
 
 static void
-gen_header(const OksClass *cl,
+gen_header(const oks::OksClass *cl,
            std::ostream& cpp_file,
            const std::string& cpp_ns_name,
            const std::string& cpp_hdr_dir,
@@ -145,7 +148,7 @@ gen_header(const OksClass *cl,
 
       for (const auto& i : *super_list)
         {
-          OksClass * c = cl->get_kernel()->find_class(*i);
+          oks::OksClass * c = cl->get_kernel()->find_class(*i);
           cpp_file << "#include \"" << get_include_dir(c, cl_info, cpp_hdr_dir) << ".hpp\"\n";
         }
     }
@@ -156,7 +159,7 @@ gen_header(const OksClass *cl,
     // generate forward declarations if necessary
     {
       // create set of classes to avoid multiple forward declarations of the same class
-      std::set<OksClass*> rclasses;
+      std::set<oks::OksClass*> rclasses;
 
       // check direct relationships (c++)
       if (cl->direct_relationships() && !cl->direct_relationships()->empty())
@@ -164,11 +167,11 @@ gen_header(const OksClass *cl,
           rclasses.insert(i->get_class_type());
 
       // check methods
-      if (const std::list<OksMethod*> *mlist = cl->direct_methods())
+      if (const std::list<oks::OksMethod*> *mlist = cl->direct_methods())
         {
           for (const auto &i : *mlist)
             {
-              if (OksMethodImplementation *mi = find_cpp_method_implementation(i))
+              if (oks::OksMethodImplementation *mi = find_cpp_method_implementation(i))
                 {
                   const std::string mp(mi->get_prototype());
                   for (const auto &j : cl->get_kernel()->classes())
@@ -204,9 +207,9 @@ gen_header(const OksClass *cl,
 
     // generate methods prologues if necessary
 
-  if (const std::list<OksMethod*> *mlist = cl->direct_methods())
+  if (const std::list<oks::OksMethod*> *mlist = cl->direct_methods())
     for (const auto &i : *mlist)
-      if (OksMethodImplementation *mi = find_cpp_method_implementation(i))
+      if (oks::OksMethodImplementation *mi = find_cpp_method_implementation(i))
         if (!get_method_header_prologue(mi).empty())
           {
             cpp_file << "  // prologue of method " << cl->get_name() << "::" << i->get_name() << "()\n";
@@ -267,7 +270,7 @@ gen_header(const OksClass *cl,
     {
       for (std::list<std::string*>::const_iterator i = super_list->begin(); i != super_list->end();)
         {
-          const OksClass * c = cl->get_kernel()->find_class(**i);
+          const oks::OksClass * c = cl->get_kernel()->find_class(**i);
           cpp_file << "public " << get_full_cpp_class_name(c, cl_info, cpp_ns_name);
           java_file << ", " << get_full_java_class_name(c, cl_info, java_pack_name);
           if (++i != super_list->end())
@@ -276,7 +279,7 @@ gen_header(const OksClass *cl,
     }
   else
     {
-      cpp_file << "public virtual ::DalObject";
+      cpp_file << "public virtual dunedaq::oksdbinterfaces::DalObject";
     }
 
   cpp_file << " {\n\n";
@@ -311,10 +314,10 @@ gen_header(const OksClass *cl,
     // generate standard methods
 
   cpp_file
-    << dx << "  friend class ::Configuration;\n"
-    << dx << "  friend class ::Configuration::Cache<" << name << ">;\n\n"
+    << dx << "  friend class oksdbinterfaces::Configuration;\n"
+    << dx << "  friend class oksdbinterfaces::Configuration::Cache<" << name << ">;\n\n"
     << dx << "  protected:\n\n"
-    << dx << "    " << name << "(::Configuration& db, const ::ConfigObject& obj) noexcept;\n"
+    << dx << "    " << name << "(oksdbinterfaces::Configuration& db, const oksdbinterfaces::ConfigObject& obj) noexcept;\n"
     << dx << "    virtual ~" << name << "() noexcept;\n"
     << dx << "    virtual void init(bool init_children);\n\n"
     << dx << "  public:\n\n"
@@ -330,16 +333,16 @@ gen_header(const OksClass *cl,
     << dx << "       */\n\n"
     << dx << "    virtual void print(unsigned int offset, bool print_header, std::ostream& s) const;\n\n\n"
     << dx << "      /**\n"
-    << dx << "       * \\brief Get values of relationships and results of some algorithms as a vector of DalObject pointers.\n"
+    << dx << "       * \\brief Get values of relationships and results of some algorithms as a vector of dunedaq::oksdbinterfaces::DalObject pointers.\n"
     << dx << "       *\n"
     << dx << "       * Parameters are:\n"
     << dx << "       *   \\param name          name of the relationship or algorithm\n"
     << dx << "       *   \\return              value of relationship or result of algorithm\n"
     << dx << "       *   \\throw               std::exception if there is no relationship or algorithm with such name in this and base classes\n"
     << dx << "       */\n\n"
-    << dx << "    virtual std::vector<const DalObject *> get(const std::string& name, bool upcast_unregistered = true) const;\n\n\n"
+    << dx << "    virtual std::vector<const dunedaq::oksdbinterfaces::DalObject *> get(const std::string& name, bool upcast_unregistered = true) const;\n\n\n"
     << dx << "  protected:\n\n"
-    << dx << "    bool get(const std::string& name, std::vector<const DalObject *>& vec, bool upcast_unregistered, bool first_call) const;\n\n\n";
+    << dx << "    bool get(const std::string& name, std::vector<const dunedaq::oksdbinterfaces::DalObject *>& vec, bool upcast_unregistered, bool first_call) const;\n\n\n";
 
 
     // generate class attributes and relationships in accordance with
@@ -353,7 +356,7 @@ gen_header(const OksClass *cl,
       //  - for single attributes this is a normal member variable.
       //  - for multiple values this is a std::vector<T>.
 
-      if (const std::list<OksAttribute*> * alist = cl->direct_attributes())
+      if (const std::list<oks::OksAttribute*> * alist = cl->direct_attributes())
         {
           for (const auto& i : *alist)
             {
@@ -372,13 +375,13 @@ gen_header(const OksClass *cl,
       //  - for single values this is just a pointer.
       //  - for multiple values this is a vector of pointers.
 
-      if (const std::list<OksRelationship*> *rlist = cl->direct_relationships())
+      if (const std::list<oks::OksRelationship*> *rlist = cl->direct_relationships())
         {
           for (const auto& i : *rlist)
             {
               const std::string rname(alnum_name(i->get_name()));
               const std::string full_class_name(get_full_cpp_class_name(i->get_class_type(), cl_info, cpp_ns_name));
-              if (i->get_high_cardinality_constraint() == OksRelationship::Many)
+              if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
                 cpp_file << dx << "    std::vector<const " << full_class_name << "*> m_" << rname << ";\n";
               else
                 cpp_file << dx << "    const " << full_class_name << "* m_" << rname << ";\n";
@@ -388,11 +391,11 @@ gen_header(const OksClass *cl,
 
       // generate methods extension if any
 
-      if (const std::list<OksMethod*> * mlist = cl->direct_methods())
+      if (const std::list<oks::OksMethod*> * mlist = cl->direct_methods())
         {
           for (const auto& i : *mlist)
             {
-              if (OksMethodImplementation * mi = find_cpp_method_implementation(i))
+              if (oks::OksMethodImplementation * mi = find_cpp_method_implementation(i))
                 {
                   std::string method_extension = get_private_section(mi);
                   if (!method_extension.empty())
@@ -415,7 +418,7 @@ gen_header(const OksClass *cl,
       //  2b. for multiple values this is:
       //     - const std::vector<attribute_type>& attribute_name() const { return m_attribute; }
 
-      if (const std::list<OksAttribute*> *alist = cl->direct_attributes())
+      if (const std::list<oks::OksAttribute*> *alist = cl->direct_attributes())
         {
 
           cpp_file << dx << "      // attribute names\n\n";
@@ -442,7 +445,7 @@ gen_header(const OksClass *cl,
 
               // generate enum values
 
-              if (i->get_data_type() == OksData::enum_type && !i->get_range().empty())
+              if (i->get_data_type() == oks::OksData::enum_type && !i->get_range().empty())
                 {
                   std::string description("Valid enumeration values to compare with value returned by get_");
                   description += aname;
@@ -459,7 +462,7 @@ gen_header(const OksClass *cl,
                   cpp_file << dx << "    struct " << capitalize_name(aname) << " {\n";
                   java_file << "  public enum " << capitalize_name(aname) << " {\n";
 
-                  Oks::Tokenizer t(i->get_range(), ",");
+                  oks::Oks::Tokenizer t(i->get_range(), ",");
                   std::string token;
                   bool is_first_token(true);
                   while (!(token = t.next()).empty())
@@ -577,23 +580,23 @@ gen_header(const OksClass *cl,
 
               java_file << " value) throws oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.SystemException;\n";
 
-              if (i->get_data_type() == OksData::string_type && i->get_is_multi_values() == false)
+              if (i->get_data_type() == oks::OksData::string_type && i->get_is_multi_values() == false)
                 {
                   cpp_file << "set_by_ref";
                 }
-              else if (i->get_data_type() == OksData::enum_type)
+              else if (i->get_data_type() == oks::OksData::enum_type)
                 {
                   cpp_file << "set_enum";
                 }
-              else if (i->get_data_type() == OksData::class_type)
+              else if (i->get_data_type() == oks::OksData::class_type)
                 {
                   cpp_file << "set_class";
                 }
-              else if (i->get_data_type() == OksData::date_type)
+              else if (i->get_data_type() == oks::OksData::date_type)
                 {
                   cpp_file << "set_date";
                 }
-              else if (i->get_data_type() == OksData::time_type)
+              else if (i->get_data_type() == oks::OksData::time_type)
                 {
                   cpp_file << "set_time";
                 }
@@ -615,7 +618,7 @@ gen_header(const OksClass *cl,
       //  2b. for multiple values this is:
       //      - const std::vector<const relation_type*>& relation() const { return m_relation; }
 
-      if (const std::list<OksRelationship*> *rlist = cl->direct_relationships())
+      if (const std::list<oks::OksRelationship*> *rlist = cl->direct_relationships())
         {
 
           cpp_file << dx << "      // relationship names\n\n";
@@ -669,7 +672,7 @@ gen_header(const OksClass *cl,
 
               java_file << "  " << full_java_class_name;
 
-              if (i->get_high_cardinality_constraint() == OksRelationship::Many)
+              if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
                 {
                   cpp_file << "std::vector<const " << full_cpp_class_name << "*>&";
                   java_file << "[]";
@@ -686,9 +689,9 @@ gen_header(const OksClass *cl,
                   << dx << "      check();\n"
                   << dx << "      check_init();\n";
 
-              if (i->get_low_cardinality_constraint() == OksRelationship::One)
+              if (i->get_low_cardinality_constraint() == oks::OksRelationship::One)
                 {
-                  if (i->get_high_cardinality_constraint() == OksRelationship::One)
+                  if (i->get_high_cardinality_constraint() == oks::OksRelationship::One)
                     {
                       cpp_file
                           << dx << "      if (!m_" << rname << ")\n"
@@ -736,7 +739,7 @@ gen_header(const OksClass *cl,
               cpp_file << dx << "    void\n" << dx << "    set_" << rname << "(const ";
               java_file << "  void set_" << rname << '(' << full_java_class_name;
 
-              if (i->get_high_cardinality_constraint() == OksRelationship::Many)
+              if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
                 {
                   cpp_file << "std::vector<const " << full_cpp_class_name << "*>&";
                   java_file << "[]";
@@ -755,7 +758,7 @@ gen_header(const OksClass *cl,
 
     // generate methods
 
-  if (const std::list<OksMethod*> *mlist = cl->direct_methods())
+  if (const std::list<oks::OksMethod*> *mlist = cl->direct_methods())
     {
       bool cpp_comment_is_printed = false;
       bool java_comment_is_printed = false;
@@ -765,7 +768,7 @@ gen_header(const OksClass *cl,
 
           // C++ algorithms
 
-          if (OksMethodImplementation * mi = find_cpp_method_implementation(i))
+          if (oks::OksMethodImplementation * mi = find_cpp_method_implementation(i))
             {
               if (cpp_comment_is_printed == false)
                 {
@@ -798,7 +801,7 @@ gen_header(const OksClass *cl,
 
           // Java algorithms
 
-          if (OksMethodImplementation * mi = find_java_method_implementation(i))
+          if (oks::OksMethodImplementation * mi = find_java_method_implementation(i))
             {
               if (java_comment_is_printed == false)
                 {
@@ -850,11 +853,11 @@ gen_header(const OksClass *cl,
 
     // generate methods epilogues if necessary
 
-  if (const std::list<OksMethod*> * mlist = cl->direct_methods())
+  if (const std::list<oks::OksMethod*> * mlist = cl->direct_methods())
     {
       for (const auto & i : *mlist)
         {
-          OksMethodImplementation * mi = find_cpp_method_implementation(i);
+          oks::OksMethodImplementation * mi = find_cpp_method_implementation(i);
           if (mi && !get_method_header_epilogue(mi).empty())
             {
               cpp_file << "  // epilogue of method " << cl->get_name() << "::" << i->get_name() << "()\n";
@@ -881,22 +884,22 @@ set2out(std::ostream& out, const std::set<std::string>& data, bool& is_first)
 
 
 static void
-gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_name, const std::string& cpp_hdr_dir, const ClassInfo::Map& cl_info)
+gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_name, const std::string& cpp_hdr_dir, const ClassInfo::Map& cl_info)
 {
   cpp_s << "#include \"logging/Logging.hpp\"\n\n";
 
   const std::string name(alnum_name(cl->get_name()));
   const std::string iname(get_java_impl_name(name));;
 
-  std::set<OksClass *> rclasses;
+  std::set<oks::OksClass *> rclasses;
 
     // for each relationship, include the header file
 
-  if (const std::list<OksRelationship*> * rlist = cl->direct_relationships())
+  if (const std::list<oks::OksRelationship*> * rlist = cl->direct_relationships())
     {
       for (const auto& i : *rlist)
         {
-          OksClass * c = i->get_class_type();
+          oks::OksClass * c = i->get_class_type();
           if (has_superclass(cl, c) == false && cl != c)
             {
               rclasses.insert(c);
@@ -904,11 +907,11 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
         }
     }
 
-  if (const std::list<OksMethod*> * mlist = cl->direct_methods())
+  if (const std::list<oks::OksMethod*> * mlist = cl->direct_methods())
     {
       for (const auto& i : *mlist)
         {
-          if (OksMethodImplementation * mi = find_cpp_method_implementation(i))
+          if (oks::OksMethodImplementation * mi = find_cpp_method_implementation(i))
             {
               std::string prototype(mi->get_prototype());
               std::string::size_type idx = prototype.find('(');
@@ -950,7 +953,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
                               else
                                 prototype.erase(0, idx+1);
 
-                              if (OksClass * c = cl->get_kernel()->find_class(prototype))
+                              if (oks::OksClass * c = cl->get_kernel()->find_class(prototype))
                                 rclasses.insert(c);
                             }
                         }
@@ -985,15 +988,15 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
 
     // static objects
 
-  cpp_s << dx << "const std::string& " << name << "::s_class_name(DalFactory::instance().get_known_class_name_ref(\"" << name << "\"));\n\n";
+  cpp_s << dx << "const std::string& " << name << "::s_class_name(dunedaq::oksdbinterfaces::DalFactory::instance().get_known_class_name_ref(\"" << name << "\"));\n\n";
 
   std::set<std::string> algo_n_set, algo_1_set;
 
-  if (const std::list<OksMethod*> * mlist = cl->direct_methods())
+  if (const std::list<oks::OksMethod*> * mlist = cl->direct_methods())
     {
       for (const auto& i : *mlist)
         {
-          if(OksMethodImplementation * mi = find_cpp_method_implementation(i))
+          if(oks::OksMethodImplementation * mi = find_cpp_method_implementation(i))
             {
               std::string prototype(mi->get_prototype());
               std::string::size_type idx = prototype.find('(');
@@ -1038,7 +1041,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
     << dx << "  {\n"
     << dx << "    __" << name << "_Registrator()\n"
     << dx << "      {\n"
-    << dx << "        DalFactory::instance().register_dal_class<" << name << ">(\"" << cl->get_name() << "\", {";
+    << dx << "        dunedaq::oksdbinterfaces::DalFactory::instance().register_dal_class<" << name << ">(\"" << cl->get_name() << "\", {";
 
     {
       bool is_first = true;
@@ -1056,8 +1059,8 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
 
   cpp_s
     << dx << "  // the constructor\n\n"
-    << dx << name << "::" << name << "(::Configuration& db, const ::ConfigObject& o) noexcept :\n"
-    << dx << "  " << "DalObject(db, o)";
+    << dx << name << "::" << name << "(oksdbinterfaces::Configuration& db, const oksdbinterfaces::ConfigObject& o) noexcept :\n"
+    << dx << "  " << "dunedaq::oksdbinterfaces::DalObject(db, o)";
 
 
     // fill member initializer list, if any
@@ -1072,11 +1075,11 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
         }
     }
 
-  if (const std::list<OksRelationship *> *rlist = cl->direct_relationships())
+  if (const std::list<oks::OksRelationship *> *rlist = cl->direct_relationships())
     {
-      for (std::list<OksRelationship*>::const_iterator i = rlist->begin(); i != rlist->end(); ++i)
+      for (std::list<oks::OksRelationship*>::const_iterator i = rlist->begin(); i != rlist->end(); ++i)
         {
-          if ((*i)->get_high_cardinality_constraint() != OksRelationship::Many)
+          if ((*i)->get_high_cardinality_constraint() != oks::OksRelationship::Many)
             {
               initializer_list.push_back(std::string("m_") + alnum_name((*i)->get_name()) + " (nullptr)");
             }
@@ -1084,11 +1087,11 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
     }
 
 
-  if(const std::list<OksMethod*> * mlist = cl->direct_methods())
+  if(const std::list<oks::OksMethod*> * mlist = cl->direct_methods())
     {
-      for (std::list<OksMethod*>::const_iterator i = mlist->begin(); i != mlist->end(); ++i)
+      for (std::list<oks::OksMethod*>::const_iterator i = mlist->begin(); i != mlist->end(); ++i)
         {
-          if (OksMethodImplementation * mi = find_cpp_method_implementation(*i))
+          if (oks::OksMethodImplementation * mi = find_cpp_method_implementation(*i))
             {
               std::string member_initializer = get_member_initializer_list(mi);
               member_initializer.erase(remove(member_initializer.begin(), member_initializer.end(), '\n'), member_initializer.end());
@@ -1148,21 +1151,21 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
         cpp_s << dx << "    " << get_full_cpp_class_name(cl->get_kernel()->find_class(*i), cl_info, cpp_ns_name) << "::print(indent, false, s);\n";
     }
 
-  if(const std::list<OksAttribute*> * alist = cl->direct_attributes()) {
+  if(const std::list<oks::OksAttribute*> * alist = cl->direct_attributes()) {
     cpp_s << "\n\n" << dx << "      // print direct attributes\n\n";
 
     for(const auto& i : *alist) {
       const std::string aname(alnum_name(i->get_name()));
-      std::string abase = (i->get_format() == OksAttribute::Hex) ? "<::oksdbinterfaces::hex>" : (i->get_format() == OksAttribute::Oct) ? "<::oksdbinterfaces::oct>" : "";
+      std::string abase = (i->get_format() == oks::OksAttribute::Hex) ? "<dunedaq::oksdbinterfaces::hex>" : (i->get_format() == oks::OksAttribute::Oct) ? "<dunedaq::oksdbinterfaces::oct>" : "";
 
       if (i->get_is_multi_values())
-        cpp_s << dx << "    ::oksdbinterfaces::p_mv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
+        cpp_s << dx << "    dunedaq::oksdbinterfaces::p_mv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
       else
-        cpp_s << dx << "    ::oksdbinterfaces::p_sv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
+        cpp_s << dx << "    dunedaq::oksdbinterfaces::p_sv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
     }
   }
 
-  if (const std::list<OksRelationship*> * rlist = cl->direct_relationships())
+  if (const std::list<oks::OksRelationship*> * rlist = cl->direct_relationships())
     {
       cpp_s << "\n\n" << dx << "      // print direct relationships\n\n";
 
@@ -1170,26 +1173,26 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
         {
           const std::string rname(alnum_name(i->get_name()));
 
-          if (i->get_high_cardinality_constraint() == OksRelationship::Many)
+          if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
             {
               if (i->get_is_composite())
-                cpp_s << dx << "    ::oksdbinterfaces::p_mv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx << "    dunedaq::oksdbinterfaces::p_mv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
               else
-                cpp_s << dx << "    ::oksdbinterfaces::p_mv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx << "    dunedaq::oksdbinterfaces::p_mv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
             }
           else
             {
               if (i->get_is_composite())
-                cpp_s << dx <<"    ::oksdbinterfaces::p_sv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx <<"    dunedaq::oksdbinterfaces::p_sv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
               else
-                cpp_s << dx <<"    ::oksdbinterfaces::p_sv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx <<"    dunedaq::oksdbinterfaces::p_sv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
             }
         }
     }
 
   cpp_s << dx << "  }\n"
         << dx << "  catch (dunedaq::oksdbinterfaces::Exception & ex) {\n"
-        << dx << "    DalObject::p_error(s, ex);\n"
+        << dx << "    dunedaq::oksdbinterfaces::DalObject::p_error(s, ex);\n"
 	<< dx << "  }\n"
         << dx << "}\n\n\n";
 
@@ -1231,8 +1234,8 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
   cpp_s << dx << "  TLOG_DEBUG(5) << \"read object \" << this << \" (class \" << s_class_name << \')\';\n";
 
     // put try / catch only if there are attributes or relationships to be initialized
-  const std::list<OksAttribute*> *alist = cl->direct_attributes();
-  const std::list<OksRelationship*> *rlist = cl->direct_relationships();
+  const std::list<oks::OksAttribute*> *alist = cl->direct_attributes();
+  const std::list<oks::OksRelationship*> *rlist = cl->direct_relationships();
 
   if ((alist && !alist->empty()) || (rlist && !rlist->empty()))
     {
@@ -1258,7 +1261,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
               const std::string& rname = i->get_name();
               std::string cpp_name = alnum_name(rname);
               std::string rcname = get_full_cpp_class_name(i->get_class_type(), cl_info, cpp_ns_name);
-              if (i->get_high_cardinality_constraint() == OksRelationship::Many)
+              if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
                 {
                   cpp_s << dx << "    p_db._ref<" << rcname << ">(p_obj, s_" << cpp_name << ", " << "m_" << cpp_name << ", init_children);\n";
                 }
@@ -1288,16 +1291,16 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
     << dx << "}\n\n";
 
   cpp_s
-    << dx << "std::vector<const DalObject *> " << name << "::get(const std::string& name, bool upcast_unregistered) const\n"
+    << dx << "std::vector<const dunedaq::oksdbinterfaces::DalObject *> " << name << "::get(const std::string& name, bool upcast_unregistered) const\n"
     << dx << "{\n"
-    << dx << "  std::vector<const DalObject *> vec;\n\n"
+    << dx << "  std::vector<const dunedaq::oksdbinterfaces::DalObject *> vec;\n\n"
     << dx << "  if (!get(name, vec, upcast_unregistered, true))\n"
     << dx << "    throw_get_ex(name, s_class_name, this);\n\n"
     << dx << "  return vec;\n"
     << dx << "}\n\n";
 
   cpp_s
-    << dx << "bool " << name << "::get(const std::string& name, std::vector<const DalObject *>& vec, bool upcast_unregistered, bool first_call) const\n"
+    << dx << "bool " << name << "::get(const std::string& name, std::vector<const dunedaq::oksdbinterfaces::DalObject *>& vec, bool upcast_unregistered, bool first_call) const\n"
     << dx << "{\n"
     << dx << "  if (first_call)\n"
     << dx << "    {\n"
@@ -1345,7 +1348,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
 
       // generate relationship set methods
 
-  if (const std::list<OksRelationship*> *rlist = cl->direct_relationships())
+  if (const std::list<oks::OksRelationship*> *rlist = cl->direct_relationships())
     {
       for (const auto& i : *rlist)
         {
@@ -1354,7 +1357,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
 
           cpp_s << dx << "void " << name << "::set_" << rname << "(const ";
 
-          if (i->get_high_cardinality_constraint() == OksRelationship::Many)
+          if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
             {
               cpp_s
                 << "std::vector<const " << full_cpp_class_name << "*>& value)\n"
@@ -1376,12 +1379,12 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
 
     // generate methods for c++
 
-  if (const std::list<OksMethod*> * mlist = cl->direct_methods())
+  if (const std::list<oks::OksMethod*> * mlist = cl->direct_methods())
     {
       bool comment_is_printed = false;
       for (const auto& i : *mlist)
         {
-          OksMethodImplementation * mi = find_cpp_method_implementation(i);
+          oks::OksMethodImplementation * mi = find_cpp_method_implementation(i);
 
           if (mi && !get_method_implementation_body(mi).empty())
             {
@@ -1437,7 +1440,7 @@ gen_cpp_body(const OksClass *cl, std::ostream& cpp_s, const std::string& cpp_ns_
 }
 
 static void
-gen_java_helper(const OksClass *cl, std::ostream& s)
+gen_java_helper(const oks::OksClass *cl, std::ostream& s)
 {
   const std::string name(alnum_name(cl->get_name()));
   const std::string iname(get_java_impl_name(name));;
@@ -1655,7 +1658,7 @@ gen_java_helper(const OksClass *cl, std::ostream& s)
 }
 
 static void
-gen_java_implementation(const OksClass *cl,
+gen_java_implementation(const oks::OksClass *cl,
                         std::ostream& s,
                         const std::string& java_pack_name,
                         const ClassInfo::Map& cl_info)
@@ -1681,7 +1684,7 @@ gen_java_implementation(const OksClass *cl,
 
     // generate class attributes && relationships
 
-  if (const std::list<OksAttribute*> * alist = cl->all_attributes())
+  if (const std::list<oks::OksAttribute*> * alist = cl->all_attributes())
     {
       s << "\n    // database class attributes\n\n";
       for (const auto& i : *alist)
@@ -1691,20 +1694,20 @@ gen_java_implementation(const OksClass *cl,
     }
 
 
-  if (const std::list<OksRelationship*> * rlist = cl->all_relationships())
+  if (const std::list<oks::OksRelationship*> * rlist = cl->all_relationships())
     {
       s << "\n\n    // database class relationships\n\n";
       for (const auto& i : *rlist)
         {
-          s << "  private " << get_full_java_class_name(i->get_class_type(), cl_info, java_pack_name) << ((i->get_high_cardinality_constraint() == OksRelationship::Many) ? "[]" : "") << " m_" << alnum_name(i->get_name()) << ";\n";
+          s << "  private " << get_full_java_class_name(i->get_class_type(), cl_info, java_pack_name) << ((i->get_high_cardinality_constraint() == oks::OksRelationship::Many) ? "[]" : "") << " m_" << alnum_name(i->get_name()) << ";\n";
         }
     }
 
-  if (const std::list<OksMethod*> * mlist = cl->all_methods())
+  if (const std::list<oks::OksMethod*> * mlist = cl->all_methods())
     {
       for (const auto& i : *mlist)
         {
-          if (OksMethodImplementation * mi = find_java_method_implementation(i))
+          if (oks::OksMethodImplementation * mi = find_java_method_implementation(i))
             {
               std::string method_extension = get_private_section(mi);
               if (!method_extension.empty())
@@ -1779,7 +1782,7 @@ gen_java_implementation(const OksClass *cl,
     "      check_validity();\n"
     "      if(p_was_read == true) {return;}\n\n";
 
-  if (const std::list<OksAttribute*> * alist = cl->all_attributes())
+  if (const std::list<oks::OksAttribute*> * alist = cl->all_attributes())
     {
       for (const auto& i : *alist)
         {
@@ -1826,7 +1829,7 @@ gen_java_implementation(const OksClass *cl,
         }
     }
 
-  if (const std::list<OksRelationship*> * rlist = cl->all_relationships())
+  if (const std::list<oks::OksRelationship*> * rlist = cl->all_relationships())
     {
       for (const auto& i : *rlist)
         {
@@ -1834,7 +1837,7 @@ gen_java_implementation(const OksClass *cl,
           std::string java_class_name = get_full_java_class_name(i->get_class_type(), cl_info, java_pack_name);
           std::string jhc_name = get_java_helper_name(java_class_name);
 
-          if (i->get_high_cardinality_constraint() == OksRelationship::Many)
+          if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
             {
               s <<
                   "      {\n"
@@ -1853,11 +1856,11 @@ gen_java_implementation(const OksClass *cl,
         }
     }
 
-  if (const std::list<OksMethod*> * mlist = cl->all_methods())
+  if (const std::list<oks::OksMethod*> * mlist = cl->all_methods())
     {
       for (const auto& i : *mlist)
         {
-          if (OksMethodImplementation * mi = find_java_method_implementation(i))
+          if (oks::OksMethodImplementation * mi = find_java_method_implementation(i))
             {
               std::string member_initializer_list = get_member_initializer_list(mi);
               if (!member_initializer_list.empty())
@@ -1877,7 +1880,7 @@ gen_java_implementation(const OksClass *cl,
     "  }\n\n";
 
 
-  if (const std::list<OksAttribute*> * alist = cl->all_attributes())
+  if (const std::list<oks::OksAttribute*> * alist = cl->all_attributes())
     {
       for (const auto& i : *alist)
         {
@@ -1912,13 +1915,13 @@ gen_java_implementation(const OksClass *cl,
         }
     }
 
-  if (const std::list<OksRelationship*> * rlist = cl->all_relationships())
+  if (const std::list<oks::OksRelationship*> * rlist = cl->all_relationships())
     {
       for (const auto& i : *rlist)
         {
           const std::string rname(alnum_name(i->get_name()));
           std::string full_rel_class_name = get_full_java_class_name(i->get_class_type(), cl_info, java_pack_name);
-          const char * rel_ext = (i->get_high_cardinality_constraint() == OksRelationship::Many ? "[]" : "");
+          const char * rel_ext = (i->get_high_cardinality_constraint() == oks::OksRelationship::Many ? "[]" : "");
 
           s << "  public " << full_rel_class_name << rel_ext << " get_" << rname << "() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException {\n"
               "    check_validity();\n"
@@ -1930,7 +1933,7 @@ gen_java_implementation(const OksClass *cl,
               "      check_validity();\n"
               "      p_obj.clean();\n";
 
-          if (i->get_high_cardinality_constraint() == OksRelationship::Many)
+          if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
             {
               s << "      oksdbinterfaces.ConfigObject[] objs = new oksdbinterfaces.ConfigObject[value.length];\n"
                   "      for(int i = 0; i < value.length; i++) {\n"
@@ -1949,12 +1952,12 @@ gen_java_implementation(const OksClass *cl,
         }
     }
 
-  if (const std::list<OksMethod*> *mlist = cl->all_methods())
+  if (const std::list<oks::OksMethod*> *mlist = cl->all_methods())
     {
       bool java_comment_is_printed = false;
       for (const auto& i : *mlist)
         {
-          OksMethodImplementation * mi = find_java_method_implementation(i);
+          oks::OksMethodImplementation * mi = find_java_method_implementation(i);
 
           if (mi && !get_method_implementation_body(mi).empty())
             {
@@ -2007,7 +2010,7 @@ gen_java_implementation(const OksClass *cl,
     "      System.out.println(dx + \"  id: \\'\" + UID() + \"\\', class name: \\'\" + class_name() + \"\\'\");\n";
 
 
-  if (const std::list<OksAttribute*> * alist = cl->all_attributes())
+  if (const std::list<oks::OksAttribute*> * alist = cl->all_attributes())
     if(!alist->empty())
       {
         s << "\n\n      // print attributes\n"
@@ -2020,9 +2023,9 @@ gen_java_implementation(const OksClass *cl,
 
             std::string fm1, fm2;
 
-            if (i->get_format() != OksAttribute::Dec)
+            if (i->get_format() != oks::OksAttribute::Dec)
               {
-                fm1 = ((i->get_format() == OksAttribute::Hex) ? "Long.toHexString(" : "Long.toOctalString(");
+                fm1 = ((i->get_format() == oks::OksAttribute::Hex) ? "Long.toHexString(" : "Long.toOctalString(");
                 fm2 = ")";
 
                 if (atype == "short")
@@ -2062,7 +2065,7 @@ gen_java_implementation(const OksClass *cl,
                     "      }\n\n";
       }
 
-  if (const std::list<OksRelationship*> * rlist = cl->all_relationships())
+  if (const std::list<oks::OksRelationship*> * rlist = cl->all_relationships())
     if(!rlist->empty())
       {
         s << "\n\n      // print relationships\n"
@@ -2071,7 +2074,7 @@ gen_java_implementation(const OksClass *cl,
         for (const auto& i : *rlist)
           {
             const std::string rname(alnum_name((i)->get_name()));
-            if (i->get_high_cardinality_constraint() == OksRelationship::Many)
+            if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
               {
                 s <<
                     "        if(get_" << rname << "().length > 0) {\n"
@@ -2156,11 +2159,11 @@ gen_java_implementation(const OksClass *cl,
 
 
 static void
-load_schemas(OksKernel& kernel, const std::list<std::string>& file_names, std::set<OksFile *, std::less<OksFile *> >& file_hs)
+load_schemas(oks::OksKernel& kernel, const std::list<std::string>& file_names, std::set<oks::OksFile *, std::less<oks::OksFile *> >& file_hs)
 {
   for (const auto& i : file_names)
     {
-      if (OksFile * fh = kernel.load_schema(i))
+      if (oks::OksFile * fh = kernel.load_schema(i))
         {
           file_hs.insert(fh);
         }
@@ -2199,7 +2202,7 @@ gen_cpp_header_prologue(const std::string& file_name,
 static void
 gen_java_prologue(std::ostream& s,
 		  const std::string& java_pack_name,
-		  const OksClass * cl,
+		  const oks::OksClass * cl,
 		  const ClassInfo::Map& cl_info,
 		  bool is_impl,
 		  bool is_helper)
@@ -2231,7 +2234,7 @@ gen_java_prologue(std::ostream& s,
 
   if (is_helper == false)
     {
-      std::set<OksClass *> jclasses;
+      std::set<oks::OksClass *> jclasses;
 
       if (const std::list<std::string*> * super_list = cl->direct_super_classes())
         {
@@ -2241,7 +2244,7 @@ gen_java_prologue(std::ostream& s,
             }
         }
 
-      if (const std::list<OksRelationship*> * r_list = (is_impl ? cl->all_relationships() : cl->direct_relationships()))
+      if (const std::list<oks::OksRelationship*> * r_list = (is_impl ? cl->all_relationships() : cl->direct_relationships()))
         {
           for (const auto& i : *r_list)
             {
@@ -2316,9 +2319,9 @@ main(int argc, char *argv[])
 
   // init OKS
 
-  std::set<OksFile *, std::less<OksFile *> > file_hs;
+  std::set<oks::OksFile *, std::less<oks::OksFile *> > file_hs;
 
-  OksKernel kernel(false, false, false, false);
+  oks::OksKernel kernel(false, false, false, false);
 
   try
     {
@@ -2334,7 +2337,7 @@ main(int argc, char *argv[])
                   "search for classes which belong to the given schema files:\n";
             }
 
-          const OksClass::Map& class_list = kernel.classes();
+          const oks::OksClass::Map& class_list = kernel.classes();
 
           if (!class_list.empty())
             {
@@ -2372,7 +2375,7 @@ main(int argc, char *argv[])
       // calculate set of classes which should be mentioned by the generator;
       // note, some of classes can come from other DALs
 
-      typedef std::set<const OksClass *, std::less<const OksClass *> > Set;
+      typedef std::set<const oks::OksClass *, std::less<const oks::OksClass *> > Set;
       Set generated_classes;
       ClassInfo::Map cl_info;
 
@@ -2382,7 +2385,7 @@ main(int argc, char *argv[])
 
       for (const auto& i : class_names)
         {
-          if (OksClass *cl = kernel.find_class(i))
+          if (oks::OksClass *cl = kernel.find_class(i))
             {
               generated_classes.insert(cl);
             }
@@ -2397,11 +2400,11 @@ main(int argc, char *argv[])
 
       for (const auto& i : generated_classes)
         {
-          if (const std::list<OksRelationship *> * rels = i->direct_relationships())
+          if (const std::list<oks::OksRelationship *> * rels = i->direct_relationships())
             {
               for (const auto& j : *rels)
                 {
-                  const OksClass * rc = j->get_class_type();
+                  const oks::OksClass * rc = j->get_class_type();
 
                   if (rc == 0)
                     {
@@ -2427,7 +2430,7 @@ main(int argc, char *argv[])
             {
               for (const auto& j : *sclasses)
                 {
-                  const OksClass * rc = kernel.find_class(*j);
+                  const oks::OksClass * rc = kernel.find_class(*j);
 
                   if (rc == 0)
                     {
@@ -2620,3 +2623,4 @@ main(int argc, char *argv[])
 
   return (EXIT_SUCCESS);
 }
+

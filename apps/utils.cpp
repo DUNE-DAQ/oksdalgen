@@ -12,6 +12,10 @@
 #include <iomanip>
 #include <iostream>
 
+
+using namespace dunedaq::oks;
+using namespace dunedaq::genconfig;
+
   /**
    *  The functions cvt_symbol() and alnum_name() are used
    *  to replace all symbols allowed in names of classes, attributes

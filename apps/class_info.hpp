@@ -8,18 +8,20 @@
 #include <set>
 #include <string>
 
+namespace dunedaq {
+namespace genconfig {
 
 class ClassInfo {
 
   public:
 
     struct SortByName {
-      bool operator() (const OksClass * c1, const OksClass * c2) const {
+      bool operator() (const oks::OksClass * c1, const oks::OksClass * c2) const {
         return c1->get_name() < c2->get_name();
       }
     };
 
-    typedef std::map<const OksClass *, ClassInfo, SortByName> Map;
+  typedef std::map<const oks::OksClass *, ClassInfo, SortByName> Map;
 
     ClassInfo() {};
 
@@ -83,5 +85,6 @@ struct NameSpaceInfo
   }
 };
 
-
+} // namespace genconfig
+} // namespace dunedaq
 #endif
