@@ -289,13 +289,13 @@ gen_dump_application(std::ostream& s,
           "  " << conf_name << " impl_conf;\n"
           "\n"
           "  {\n"
-          "    ::Configuration conf(db_name, &impl_conf);\n";
+          "    dunedaq::oksdbinterfaces::Configuration conf(db_name, &impl_conf);\n";
     }
   else
     {
       s <<
           "  try {\n"
-          "    ::Configuration conf(db_name);\n";
+          "    dunedaq::oksdbinterfaces::Configuration conf(db_name);\n";
     }
 
   s <<
@@ -305,10 +305,10 @@ gen_dump_application(std::ostream& s,
       "      return (EXIT_FAILURE);\n"
       "    }\n"
       "    \n"
-      "    std::vector< ::ConfigObject > objects;\n"
+      "    std::vector< dunedaq::oksdbinterfaces::ConfigObject > objects;\n"
       "    \n"
       "    if(object_id) {\n"
-      "      ::ConfigObject obj;\n"
+      "      dunedaq::oksdbinterfaces::ConfigObject obj;\n"
       "      try {\n"
       "        conf.get(class_name, object_id, obj, 1);\n"
       "      }\n"
@@ -329,12 +329,12 @@ gen_dump_application(std::ostream& s,
       "    }\n"
       "    \n"
       "    struct SortByUId {\n"
-      "      bool operator() (const ConfigObject * o1, const ConfigObject * o2) const {\n"
+      "      bool operator() (const dunedaq::oksdbinterfaces::ConfigObject * o1, const dunedaq::oksdbinterfaces::ConfigObject * o2) const {\n"
       "        return (o1->UID() < o2->UID());\n"
       "      };\n"
       "    };\n"
       "    \n"
-      "    std::set< ::ConfigObject *, SortByUId > sorted_objects;\n"
+      "    std::set< dunedaq::oksdbinterfaces::ConfigObject *, SortByUId > sorted_objects;\n"
       "    \n"
       "    for(auto& i : objects)\n"
       "      sorted_objects.insert(&i);\n"
