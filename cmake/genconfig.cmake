@@ -58,6 +58,9 @@ function(daq_generate_dal)
 
    if(DAQ_PROJECT_GENCONFIG_INCLUDES OR config_opts_INCLUDE_DIRECTORIES)
      set(config_includes -I ${DAQ_PROJECT_GENCONFIG_INCLUDES})
+     foreach(inc ${config_opts_INCLUDE_DIRECTORIES})
+       list(APPEND config_includes ${inc})
+     endforeach()
    endif()
    
    set(schemas)
