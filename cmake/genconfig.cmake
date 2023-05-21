@@ -7,6 +7,7 @@
 #                      [INCLUDE_DIRECTORIES ...] 
 #                      [CLASSES ...] 
 #                      [PACKAGE name] 
+#		       [DEP_PKGS pkg1 pkg2 ...]
 #                      [INCLUDE dir] 
 #                      [CPP dir] 
 #                      [CPP_OUTPUT var1] 
@@ -14,7 +15,7 @@
 # ######################################################################
 function(daq_generate_dal)
 
-   cmake_parse_arguments(config_opts "" "TARGET;PACKAGE;NAMESPACE;CPP;INCLUDE;CPP_OUTPUT;DUMP_OUTPUT" "INCLUDE_DIRECTORIES;CLASSES" ${ARGN})
+   cmake_parse_arguments(config_opts "" "TARGET;PACKAGE;NAMESPACE;CPP;INCLUDE;CPP_OUTPUT;DUMP_OUTPUT" "DEP_PKGS;INCLUDE_DIRECTORIES;CLASSES" ${ARGN})
    set(srcs ${config_opts_UNPARSED_ARGUMENTS})
 
    if(NOT config_opts_TARGET)
@@ -52,6 +53,26 @@ function(daq_generate_dal)
       set(hpp_dir ${config_opts_INCLUDE})
    else()
       string(REPLACE "::" "/" hpp_dir ${config_opts_NAMESPACE})
+   endif()
+
+   set(dep_paths ${CMAKE_CURRENT_SOURCE_DIR} )
+   if (DEFINED config_opts_DEP_PKGS)
+     foreach(dep_pkg ${config_opts_DEP_PKGS})
+
+       if (EXISTS ${CMAKE_SOURCE_DIR}/${dep_pkg})
+         list(APPEND dep_paths "${CMAKE_SOURCE_DIR}/${dep_pkg}")
+       else()      					
+         if (NOT DEFINED "${dep_pkg}_DAQSHARE")
+           if (NOT DEFINED "${dep_pkg}_CONFIG")
+             message(FATAL_ERROR "ERROR: package ${dep_pkg} not found/imported.")
+           else()
+             message(FATAL_ERROR "ERROR: package ${dep_pkg} does not provide the ${dep_pkg}_DAQSHARE path variable.")
+           endif()
+         endif()
+        
+         list(APPEND dep_paths "${${dep_pkg}_DAQSHARE}")
+       endif()
+     endforeach()
    endif()
 
    set(config_dependencies)
@@ -114,9 +135,11 @@ function(daq_generate_dal)
    add_custom_target(${tmp_target}
      COMMAND mkdir -p ${cpp_dir} ${cpp_dir}/dump ${hpp_dir} genconfig_${config_opts_TARGET})
 
+   string(JOIN ":" PATHS_TO_SEARCH ${dep_paths})
+
    add_custom_command(
      OUTPUT genconfig_${config_opts_TARGET}/genconfig.info ${cpp_source} ${dump_srcs}
-     COMMAND ${GENCONFIG_BINARY} -i ${hpp_dir} -n ${config_opts_NAMESPACE} -d ${cpp_dir} -p ${package} ${class_option} ${config_includes} -s ${schemas}
+     COMMAND ${CMAKE_COMMAND} -E env TDAQ_DB_PATH=${PATHS_TO_SEARCH} ${GENCONFIG_BINARY} -i ${hpp_dir} -n ${config_opts_NAMESPACE} -d ${cpp_dir} -p ${package} ${class_option} ${config_includes} -s ${schemas}
      COMMAND cp -f ${cpp_dir}/*.hpp ${hpp_dir}/
      COMMAND cp -f ${cpp_dir}/dump*.cpp ${cpp_dir}/dump
      COMMAND cp genconfig.info genconfig_${config_opts_TARGET}/
