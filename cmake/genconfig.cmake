@@ -1,4 +1,5 @@
 
+include(DAQ)
 
 # ######################################################################
 # daq_generate_dal(sources... 
@@ -10,13 +11,14 @@
 #		       [DEP_PKGS pkg1 pkg2 ...]
 #                      [INCLUDE dir] 
 #                      [CPP dir] 
-#                      [CPP_OUTPUT var1] 
 #                      [DUMP_OUTPUT var2])
 # ######################################################################
 function(daq_generate_dal)
 
-   cmake_parse_arguments(config_opts "" "TARGET;PACKAGE;NAMESPACE;CPP;INCLUDE;CPP_OUTPUT;DUMP_OUTPUT" "DEP_PKGS;INCLUDE_DIRECTORIES;CLASSES" ${ARGN})
+   cmake_parse_arguments(config_opts "" "TARGET;PACKAGE;NAMESPACE;CPP;INCLUDE;DUMP_OUTPUT" "DEP_PKGS;INCLUDE_DIRECTORIES;CLASSES" ${ARGN})
    set(srcs ${config_opts_UNPARSED_ARGUMENTS})
+
+   set(LIB_PATH "codegen")
 
    if(NOT config_opts_TARGET)
      set(config_opts_TARGET DAL_${PROJECT_NAME})
@@ -147,22 +149,31 @@ function(daq_generate_dal)
 
    add_custom_target(${config_opts_TARGET} ALL DEPENDS ${cpp_source} )
 
-   if(config_opts_CPP_OUTPUT)
-     set(${config_opts_CPP_OUTPUT} ${cpp_source} PARENT_SCOPE)
-   endif()
+   set(libname ${PROJECT_NAME}_oks)
+   add_library(${libname} SHARED ${cpp_source})
+   target_link_libraries(${libname} PUBLIC oksdbinterfaces::oksdbinterfaces)
+   _daq_set_target_output_dirs( ${libname} ${LIB_PATH} )
+
+
+   target_include_directories(${libname} PUBLIC
+     $<BUILD_INTERFACE:${CMAKE_CODEGEN_BINARY_DIR}/include>
+     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+   )
 
    if(config_opts_DUMP_OUTPUT)
      set(${config_opts_DUMP_OUTPUT} ${dump_srcs} PARENT_SCOPE)
    endif()
 
-   if(config_opts_CPP_OUTPUT)
-     install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${hpp_dir} OPTIONAL COMPONENT ${TDAQ_COMPONENT_NOARCH} DESTINATION include FILES_MATCHING PATTERN *.hpp)
-   endif()
+   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${hpp_dir} OPTIONAL COMPONENT ${TDAQ_COMPONENT_NOARCH} DESTINATION include FILES_MATCHING PATTERN *.hpp)
 
    # Always install genconfig.info files, independent of NOINSTALL option
    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/genconfig_${config_opts_TARGET}/genconfig.info OPTIONAL COMPONENT ${TDAQ_COMPONENT_NOARCH} DESTINATION share/data/${PROJECT_NAME})
 
-   set(DAQ_PROJECT_GENERATES_CODE true PARENT_SCOPE)
+   _daq_define_exportname()
+  install(TARGETS ${libname} EXPORT ${DAQ_PROJECT_EXPORTNAME} )
+
+  set(DAQ_PROJECT_INSTALLS_TARGETS true PARENT_SCOPE)
+  set(DAQ_PROJECT_GENERATES_CODE true PARENT_SCOPE)
 
 endfunction()
 
