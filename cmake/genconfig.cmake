@@ -4,42 +4,25 @@ include(DAQ)
 # ######################################################################
 # daq_generate_dal(sources... 
 #                      NAMESPACE ns
-#                      [TARGET target]
 #                      [INCLUDE_DIRECTORIES ...] 
-#                      [CLASSES ...] 
-#                      [PACKAGE name] 
 #		       [DEP_PKGS pkg1 pkg2 ...]
-#                      [INCLUDE dir] 
-#                      [CPP dir] 
 #                      [DUMP_OUTPUT var2])
 # ######################################################################
 function(daq_generate_dal)
 
-   cmake_parse_arguments(config_opts "" "TARGET;PACKAGE;NAMESPACE;CPP;INCLUDE;DUMP_OUTPUT" "DEP_PKGS;INCLUDE_DIRECTORIES;CLASSES" ${ARGN})
+   cmake_parse_arguments(config_opts "" "NAMESPACE;DUMP_OUTPUT" "DEP_PKGS;INCLUDE_DIRECTORIES" ${ARGN})
    set(srcs ${config_opts_UNPARSED_ARGUMENTS})
 
    set(LIB_PATH "codegen")
 
-   if(NOT config_opts_TARGET)
-     set(config_opts_TARGET DAL_${PROJECT_NAME})
-   endif()
+   set(TARGETNAME DAL_${PROJECT_NAME})
 
-   list(APPEND DAQ_PROJECT_GENCONFIG_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/genconfig_${config_opts_TARGET})
+   list(APPEND DAQ_PROJECT_GENCONFIG_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/genconfig_${TARGETNAME})
    set(DAQ_PROJECT_GENCONFIG_INCLUDES ${DAQ_PROJECT_GENCONFIG_INCLUDES} PARENT_SCOPE)
 
-   if(config_opts_CLASSES)
-     set(class_option -c ${config_opts_CLASSES})
-   endif()
-
    set(package ${PROJECT_NAME})
-   if(config_opts_PACKAGE)
-      set(package ${config_opts_PACKAGE})
-   endif()
 
-   set(cpp_dir ${config_opts_TARGET}.tmp.cpp)
-   if(config_opts_CPP)
-      set(cpp_dir ${config_opts_CPP})
-   endif()
+   set(cpp_dir ${CMAKE_CODEGEN_BINARY_DIR}/src)
 
    if(NOT config_opts_NAMESPACE)
       message(ERROR "NAMESPACE option is required")
@@ -50,12 +33,7 @@ function(daq_generate_dal)
      set(dump_srcs ${cpp_dir}/dump/dump_${dump_suffix}.cpp)
    endif()
 
-   set(hpp_dir)
-   if(config_opts_INCLUDE)
-      set(hpp_dir ${config_opts_INCLUDE})
-   else()
-      string(REPLACE "::" "/" hpp_dir ${config_opts_NAMESPACE})
-   endif()
+   set(hpp_dir ${CMAKE_CODEGEN_BINARY_DIR}/include/${PROJECT_NAME})
 
    set(dep_paths ${CMAKE_CURRENT_SOURCE_DIR} )
    if (DEFINED config_opts_DEP_PKGS)
@@ -103,17 +81,6 @@ function(daq_generate_dal)
 
      separate_arguments(class_out)
 
-     if(config_opts_CLASSES)
-       set(out)
-       foreach(cand ${class_out})
-         list(FIND config_opts_CLASSES ${cand} found)
-         if(NOT ${found} EQUAL -1)
-           set(out ${out} ${cand})
-         endif()
-       endforeach()
-       set(class_out ${out})
-     endif()
-
      foreach(s ${class_out})
        set(cpp_source ${cpp_source} ${cpp_dir}/${s}.cpp ${hpp_dir}/${s}.hpp)
      endforeach()
@@ -129,25 +96,25 @@ function(daq_generate_dal)
 
    set(GENCONFIG_DEPENDS genconfig)
 
-   set(tmp_target MKTMP_${config_opts_TARGET})
+   set(tmp_target MKTMP_${TARGETNAME})
    if(TARGET ${tmp_target})
      message(SEND_ERROR "You are using more than one daq_generate_dal() command inside this package. Please use the TARGET <name> argument to distinguish them")
    endif()
 
    add_custom_target(${tmp_target}
-     COMMAND mkdir -p ${cpp_dir} ${cpp_dir}/dump ${hpp_dir} genconfig_${config_opts_TARGET})
+     COMMAND mkdir -p ${cpp_dir} ${cpp_dir}/dump ${hpp_dir} genconfig_${TARGETNAME})
 
    string(JOIN ":" PATHS_TO_SEARCH ${dep_paths})
 
    add_custom_command(
-     OUTPUT genconfig_${config_opts_TARGET}/genconfig.info ${cpp_source} ${dump_srcs}
-     COMMAND ${CMAKE_COMMAND} -E env TDAQ_DB_PATH=${PATHS_TO_SEARCH} ${GENCONFIG_BINARY} -i ${hpp_dir} -n ${config_opts_NAMESPACE} -d ${cpp_dir} -p ${package} ${class_option} ${config_includes} -s ${schemas}
+     OUTPUT genconfig_${TARGETNAME}/genconfig.info ${cpp_source} ${dump_srcs}
+     COMMAND ${CMAKE_COMMAND} -E env TDAQ_DB_PATH=${PATHS_TO_SEARCH} ${GENCONFIG_BINARY} -i ${hpp_dir} -n ${config_opts_NAMESPACE} -d ${cpp_dir} -p ${package} ${config_includes} -s ${schemas}
      COMMAND cp -f ${cpp_dir}/*.hpp ${hpp_dir}/
      COMMAND cp -f ${cpp_dir}/dump*.cpp ${cpp_dir}/dump
-     COMMAND cp genconfig.info genconfig_${config_opts_TARGET}/
+     COMMAND cp genconfig.info genconfig_${TARGETNAME}/
      DEPENDS ${schemas} ${config_dependencies} ${tmp_target} ${GENCONFIG_DEPENDS})
 
-   add_custom_target(${config_opts_TARGET} ALL DEPENDS ${cpp_source} )
+   add_custom_target(${TARGETNAME} ALL DEPENDS ${cpp_source} )
 
    set(libname ${PROJECT_NAME}_oks)
    add_library(${libname} SHARED ${cpp_source})
@@ -167,7 +134,7 @@ function(daq_generate_dal)
    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${hpp_dir} OPTIONAL COMPONENT ${TDAQ_COMPONENT_NOARCH} DESTINATION include FILES_MATCHING PATTERN *.hpp)
 
    # Always install genconfig.info files, independent of NOINSTALL option
-   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/genconfig_${config_opts_TARGET}/genconfig.info OPTIONAL COMPONENT ${TDAQ_COMPONENT_NOARCH} DESTINATION share/data/${PROJECT_NAME})
+   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/genconfig_${TARGETNAME}/genconfig.info OPTIONAL COMPONENT ${TDAQ_COMPONENT_NOARCH} DESTINATION share/data/${PROJECT_NAME})
 
    _daq_define_exportname()
   install(TARGETS ${libname} EXPORT ${DAQ_PROJECT_EXPORTNAME} )
