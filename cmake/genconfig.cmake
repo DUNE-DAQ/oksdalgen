@@ -2,11 +2,25 @@
 include(DAQ)
 
 # ######################################################################
-# daq_generate_dal(sources... 
+# daq_oks_codegen(<oks schema filename1> ... 
 #                      NAMESPACE ns
 #		       [DEP_PKGS pkg1 pkg2 ...]
-# ######################################################################
-function(daq_generate_dal)
+#
+# `daq_oks_codegen` uses the genconfig package's application of the same
+# name to generate C++ and Python code from the OKS schema file(s)
+# provided to it.
+#
+# Arguments:
+#  <schema filename1> ...: the list of OKS schema files to process from `<package>/schema/<package>`. 
+#
+# NAMESPACE: the namespace in which the generated C++ classes will be in. Defaults to `dunedaq::<package>`
+#
+# DEP_PKGS: if a schema file you've provided as an argument itself includes a schema file (or schema files) from one or more other packages, you need to supply the names of the packages as arguments to DEP_PKGS. 
+#
+#
+#######################################################################
+
+function(daq_oks_codegen)
 
    cmake_parse_arguments(config_opts "" "NAMESPACE" "DEP_PKGS" ${ARGN})
 
@@ -17,7 +31,7 @@ function(daq_generate_dal)
    set(TARGETNAME DAL_${PROJECT_NAME})
 
    if(TARGET ${TARGETNAME})
-     message(FATAL_ERROR "You are using more than one daq_generate_dal() command inside this package; this is not allowed. Exiting...")
+     message(FATAL_ERROR "You are using more than one daq_oks_codegen() command inside this package; this is not allowed. Exiting...")
    endif()
 
    set(LIST GENCONFIG_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/genconfig_${TARGETNAME}/ )
