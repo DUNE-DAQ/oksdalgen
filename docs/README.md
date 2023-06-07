@@ -12,7 +12,8 @@ daq_oks_codegen(<oks schema filename1> ... [NAMESPACE ns] [DEP_PKGS pkg1 pkg2 ..
 
 `daq_oks_codegen` uses the genconfig package's application of the same
 name to generate C++ and Python code from the OKS schema file(s)
-provided to it.
+provided to it. It will create a shared object library from the C++ code which can be referred to in your
+`CMakeLists.txt` file as a target with the name `<package>_oks`.
 
 Arguments:
 
