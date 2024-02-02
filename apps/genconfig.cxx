@@ -73,6 +73,30 @@ has_superclass(const oks::OksClass * tested, const oks::OksClass * c)
   return false;
 }
 
+const std::string WHITESPACE = " \n\r\t\f\v";
+ 
+std::string ltrim(const std::string &s)
+{
+    size_t start = s.find_first_not_of(WHITESPACE);
+    return (start == std::string::npos) ? "" : s.substr(start);
+}
+ 
+std::string rtrim(const std::string &s)
+{
+    size_t end = s.find_last_not_of(WHITESPACE);
+    return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+}
+ 
+std::string trim(const std::string &s) {
+    return rtrim(ltrim(s));
+}
+
+const std::vector<std::string> cpp_method_virtual_specifiers = {
+    "virtual",
+    "override",
+    "final"
+};
+
 
 static void
 gen_java_any_class(std::ostream& s, const std::string& java_pack_name)
@@ -1423,6 +1447,31 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
                   s += "::";
                   prototype.insert(idx + 1, s);
                 }
+
+              // Second pass
+              std::string::size_type idx_open_bracket = prototype.find('(');
+              std::string::size_type idx_space = prototype.rfind(' ', idx_open_bracket);
+              std::string::size_type idx_close_bracket = prototype.rfind(')');
+            
+              auto prototype_attrs = prototype.substr(0,idx_space+1);
+              auto prototype_head = prototype.substr(idx_space+1,idx_close_bracket-idx_space);
+              auto prototype_specs = prototype.substr(idx_close_bracket+1);
+
+              for ( const auto& spec : cpp_method_virtual_specifiers ) {
+                  idx = prototype_attrs.find(spec);
+                  if ( idx != std::string::npos) {
+                      prototype_attrs.erase(idx,spec.size());
+                  }
+                  prototype_attrs = trim(prototype_attrs);
+                                    
+                  idx = prototype_specs.find(spec);
+                  if ( idx != std::string::npos) {
+                      prototype_specs.erase(idx,spec.size());
+                  }
+                  prototype_specs = trim(prototype_specs);
+              }
+
+              prototype = prototype_attrs + ' ' + prototype_head + ' ' + prototype_specs;
 
               cpp_s
                 << dx << prototype << std::endl
