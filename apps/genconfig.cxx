@@ -340,6 +340,7 @@ gen_header(const oks::OksClass *cl,
   cpp_file
     << dx << "  friend class oksdbinterfaces::Configuration;\n"
     << dx << "  friend class oksdbinterfaces::Configuration::Cache<" << name << ">;\n\n"
+    << dx << "  friend class oksdbinterfaces::DalObject;\n\n"
     << dx << "  protected:\n\n"
     << dx << "    " << name << "(oksdbinterfaces::Configuration& db, const oksdbinterfaces::ConfigObject& obj) noexcept;\n"
     << dx << "    virtual ~" << name << "() noexcept;\n"
