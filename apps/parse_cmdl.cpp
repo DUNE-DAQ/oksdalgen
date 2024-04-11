@@ -13,8 +13,6 @@ usage()
     "usage: genconfig [-d | --c++-dir-name directory-name]\n"
     "                 [-n | --c++-namespace namespace\n"
     "                 [-i | --c++-headers-dir directory-prefix]\n"
-    "                 [-j | --java-dir-name directory-name]\n"
-    "                 [-p | --java-package-name package-name]\n"
     "                 [-I | --include-dirs dirs*]\n"
     "                 [-c | --classes class*]\n"
     "                 [-D | --user-defined-classes [namespace::]user-class[@dir-prefix]*]\n"
@@ -27,8 +25,6 @@ usage()
     "       -d directory-name    name of directory for c++ header and implementation files\n"
     "       -n namespace         namespace for c++ classes\n"
     "       -i directory-prefix  name of directory prefix for c++ header files\n"
-    "       -j directory-name    name of directory for java files\n"
-    "       -p package-name      package name for java files\n"
     "       -I dirs*             directories where to search for already generated files\n"
     "       -c class*            explicit list of classes to be generated\n"
     "       -D [x::]c[@d]*       user-defined classes\n"
@@ -38,7 +34,7 @@ usage()
     "       -s files+            the schema files (at least one is mandatory)\n"
     "\n"
     "Description:\n"
-    "       The utility generates c++ and java code for OKS schema files.\n\n";
+    "       The utility generates c++ code for OKS schema files.\n\n";
 }
 
 static void
@@ -57,11 +53,11 @@ parse_arguments(int argc, char *argv[],
                 std::string& cpp_dir_name,
                 std::string& cpp_ns_name,
                 std::string& cpp_hdr_dir,
-		std::string& java_dir_name,
-		std::string& java_pack_name,
-		std::string& info_file_name,
-		bool& verbose)
+            		std::string& info_file_name,
+		            bool& verbose
+              )
 {
+
   for (int i = 1; i < argc; i++)
     {
       const char * cp = argv[i];
@@ -95,20 +91,6 @@ parse_arguments(int argc, char *argv[],
             no_param(cp);
           else
             cpp_hdr_dir = argv[i];
-        }
-      else if (!strcmp(cp, "-j") || !strcmp(cp, "--java-dir-name"))
-        {
-          if (++i == argc || argv[i][0] == '-')
-            no_param(cp);
-          else
-            java_dir_name = argv[i];
-        }
-      else if (!strcmp(cp, "-p") || !strcmp(cp, "--java-package-name"))
-        {
-          if (++i == argc || argv[i][0] == '-')
-            no_param(cp);
-          else
-            java_pack_name = argv[i];
         }
       else if (!strcmp(cp, "-f") || !strcmp(cp, "--info-file-name"))
         {
@@ -162,8 +144,6 @@ parse_arguments(int argc, char *argv[],
           "    c++ directory name:    \"" << cpp_dir_name << "\"\n"
           "    c++ namespace name:    \"" << cpp_ns_name << "\"\n"
           "    c++ headers directory: \"" << cpp_hdr_dir << "\"\n"
-          "    java directory name:   \"" << java_dir_name << "\"\n"
-          "    java package name:     \"" << java_pack_name << "\"\n"
           "    classes:";
 
       if (!class_names.empty())

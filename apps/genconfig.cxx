@@ -25,20 +25,16 @@ extern std::string capitalize_name(const std::string& in);
 extern void print_description(std::ostream& s, const std::string& text, const char * dx);
 extern void print_indented(std::ostream& s, const std::string& text, const char * dx);
 extern std::string get_type(oks::OksData::Type oks_type, bool is_cpp);
-extern std::string get_java_impl_name(const std::string& s);
-extern std::string get_java_helper_name(const std::string& s);
 extern void gen_dump_application(std::ostream& s, std::list<std::string>& class_names, const std::string& cpp_ns_name, const std::string& cpp_hdr_dir, const char * conf_header, const char * conf_name, const char * headres_prologue, const char * main_function_prologue);
-extern void write_info_file(std::ostream& s, const std::string& cpp_namespace, const std::string& cpp_header_dir, const std::string& java_pname, const std::set<const oks::OksClass *, std::less<const oks::OksClass *> >& class_names);
+extern void write_info_file(std::ostream& s, const std::string& cpp_namespace, const std::string& cpp_header_dir, const std::set<const oks::OksClass *, std::less<const oks::OksClass *> >& class_names);
 extern std::string get_full_cpp_class_name(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string & cpp_ns_name);
-extern std::string get_full_java_class_name(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string & java_p_name);
 extern std::string get_include_dir(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string& cpp_hdr_dir);
-extern const std::string& get_package_name(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string& java_p_name);
-extern void parse_arguments(int argc, char *argv[], std::list<std::string>& class_names, std::list<std::string>& file_names, std::list<std::string>& include_dirs, std::list<std::string>& user_classes, std::string& cpp_dir_name, std::string& cpp_ns_name, std::string& cpp_hdr_dir, std::string& java_dir_name, std::string& java_pack_name, std::string& info_file_name, bool& verbose);
+// extern const std::string& get_package_name(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string& java_p_name);
+extern void parse_arguments(int argc, char *argv[], std::list<std::string>& class_names, std::list<std::string>& file_names, std::list<std::string>& include_dirs, std::list<std::string>& user_classes, std::string& cpp_dir_name, std::string& cpp_ns_name, std::string& cpp_hdr_dir, std::string& info_file_name, bool& verbose);
 extern bool process_external_class(ClassInfo::Map& cl_info, const oks::OksClass * c, const std::list<std::string>& include_dirs, const std::list<std::string>& user_classes, bool verbose);
 extern std::string int2dx(int level);
 extern int open_cpp_namespace(std::ostream& s, const std::string& value);
 extern void close_cpp_namespace(std::ostream& s, int level);
-extern std::string add_java_package_names(const std::string& in, const oks::OksKernel * kernel, const ClassInfo::Map& cl_info, const std::string& java_pack_name);
 extern std::string get_method_header_prologue(oks::OksMethodImplementation *);
 extern std::string get_method_header_epilogue(oks::OksMethodImplementation *);
 extern std::string get_public_section(oks::OksMethodImplementation * mi);
@@ -48,7 +44,6 @@ extern std::string get_method_implementation_body(oks::OksMethodImplementation *
 extern bool get_add_algo_1(oks::OksMethodImplementation * mi);
 extern bool get_add_algo_n(oks::OksMethodImplementation * mi);
 extern oks::OksMethodImplementation * find_cpp_method_implementation(const oks::OksMethod * method);
-extern oks::OksMethodImplementation * find_java_method_implementation(const oks::OksMethod * method);
 
 
   /**
@@ -97,68 +92,11 @@ const std::vector<std::string> cpp_method_virtual_specifiers = {
     "final"
 };
 
-
-static void
-gen_java_any_class(std::ostream& s, const std::string& java_pack_name)
-{
-  s <<
-    "package " << java_pack_name << ";\n"
-    "\n"
-    "  // import oksdbinterfacesuration classes\n"
-    "\n"
-    "import oksdbinterfaces.Configuration;\n"
-    "import oksdbinterfaces.DalObject;\n"
-    "\n"
-    "public class __AnyObject__ {\n"
-    "\n"
-    "  public static oksdbinterfaces.DalObject get(oksdbinterfaces.Configuration db, String class_name, String object_id) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException {\n"
-    "\n"
-    "    try {\n"
-    "      Class c = Class.forName(\"" << java_pack_name <<".\" + class_name + \"_Impl\");\n"
-    "\n"
-    "      oksdbinterfaces.DalObject dal_obj = (oksdbinterfaces.DalObject)db.get(class_name, object_id);\n"
-    "\n"
-    "      if(dal_obj == null) {\n"
-    "        oksdbinterfaces.ConfigObject conf_obj = db.get_object(class_name, object_id);\n"
-    "        if(conf_obj != null) {\n"
-    "          oksdbinterfaces.DalObject o = (oksdbinterfaces.DalObject)c.newInstance();\n"
-    "          o.init_oksdbinterfaces_params(db, conf_obj, conf_obj.UID());\n"
-    "          db.add(class_name, object_id, o);\n"
-    "          return o;\n"
-    "        }\n"
-    "      }\n"
-    "      else {\n"
-    "        return dal_obj;\n"
-    "      }\n"
-    "    }\n"
-    "    catch(final ClassNotFoundException | IllegalAccessException | InstantiationException ex) {\n"
-    "      throw new oksdbinterfaces.SystemException(ex);\n"
-    "    }\n"
-    "\n"
-    "    return null;\n"
-    "  }\n"
-    "\n"
-    "  public static oksdbinterfaces.DalObject[] get(oksdbinterfaces.Configuration db, String class_name, oksdbinterfaces.Query query) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException {\n"
-    "    oksdbinterfaces.ConfigObject[] objs = db.get_objects(class_name, query);\n"
-    "    oksdbinterfaces.DalObject[] result = new oksdbinterfaces.DalObject[objs.length];\n"
-    "\n"
-    "    for (int i = 0; i < objs.length; i++) {\n"
-    "      result[i] = get(db, class_name, objs[i].UID());\n"
-    "    }\n"
-    "\n"
-    "    return result;\n"
-    "  }\n"
-    "}\n";
-}
-
-
 static void
 gen_header(const oks::OksClass *cl,
            std::ostream& cpp_file,
            const std::string& cpp_ns_name,
            const std::string& cpp_hdr_dir,
-           std::ostream& java_file,
-           const std::string& java_pack_name,
            const ClassInfo::Map& cl_info)
 {
   const std::string name(alnum_name(cl->get_name()));
@@ -276,8 +214,6 @@ gen_header(const oks::OksClass *cl,
  
     txt += "@author genconfig\n";
 
-    print_description(java_file, txt, dx);
-
     cpp_file << std::endl;
     print_description(cpp_file, cl->get_description(), dx);
   }
@@ -285,8 +221,6 @@ gen_header(const oks::OksClass *cl,
     // generate class declaration itself
 
   cpp_file << dx << "class " << name << " : ";
-  java_file << "public interface " << name << " extends oksdbinterfaces.DalObject";
-
 
     // generate inheritance list
 
@@ -296,7 +230,6 @@ gen_header(const oks::OksClass *cl,
         {
           const oks::OksClass * c = cl->get_kernel()->find_class(**i);
           cpp_file << "public " << get_full_cpp_class_name(c, cl_info, cpp_ns_name);
-          java_file << ", " << get_full_java_class_name(c, cl_info, java_pack_name);
           if (++i != super_list->end())
             cpp_file << ", ";
         }
@@ -307,33 +240,6 @@ gen_header(const oks::OksClass *cl,
     }
 
   cpp_file << " {\n\n";
-  java_file << " {\n\n";
-
-
-    // java print() method
-
-  print_description(
-    java_file,
-    "Method to print out values of attributes and relationships.\n"
-    "@param dx string for left margin (for a formatted output)",
-    "  "
-  );
-
-  java_file << "  void print(String dx);\n\n";
-
-
-    // java method to destroy object
-  
-  print_description(
-    java_file,
-    "Method to destroy object.\n"
-    "@param db     oksdbinterfacesuration object\n",
-    "  "
-  );
-
-  java_file << "  void destroy(oksdbinterfaces.Configuration db) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotAllowedException;\n";
-
-
 
     // generate standard methods
 
@@ -480,41 +386,28 @@ gen_header(const oks::OksClass *cl,
 
                   print_description(cpp_file, description, dx2);
 
-                  java_file << "\n\n";
                   description += "\nUse toString() method to compare and to pass the values. Do not use name() method.";
-                  print_description(java_file, description, "  ");
 
                   cpp_file << dx << "    struct " << capitalize_name(aname) << " {\n";
-                  java_file << "  public enum " << capitalize_name(aname) << " {\n";
 
                   oks::Oks::Tokenizer t(i->get_range(), ",");
                   std::string token;
-                  bool is_first_token(true);
                   while (!(token = t.next()).empty())
                     {
                       cpp_file << dx << "      inline static const std::string " << capitalize_name(alnum_name(token)) << " = \"" << token << "\";\n";
-                      if (is_first_token)
-                        is_first_token = false;
-                      else
-                        java_file << ",\n";
-                      java_file << "    " << capitalize_name(alnum_name(token)) << " { public String toString() { return \"" << token << "\"; } }";
                     }
 
                   cpp_file << dx << "    };\n\n";
-                  java_file << "\n  }";
                 }
 
               // generate get method description
 
                 {
-                  java_file << "\n\n";
 
                   std::string description("Get \"");
                   description += i->get_name();
                   description += "\" attribute value.\n\n";
                   description += i->get_description();
-
-                  print_description(java_file, description + "\n@return the attribute value\n", "  ");
 
                   std::string description2("\\brief ");
                   description2 += description;
@@ -529,12 +422,10 @@ gen_header(const oks::OksClass *cl,
               cpp_file << dx << "    ";
 
               std::string cpp_type = get_type(i->get_data_type(), true);
-              std::string java_type = get_type(i->get_data_type(), false);
 
               if (i->get_is_multi_values())
                 {
                   cpp_file << "const std::vector<" << cpp_type << ">&";
-                  java_file << "  " << java_type << "[] ";
                 }
               else
                 {
@@ -542,8 +433,6 @@ gen_header(const oks::OksClass *cl,
                     cpp_file << "const std::string&";
                   else
                     cpp_file << cpp_type;
-
-                  java_file << "  " << java_type << ' ';
                 }
 
               cpp_file << '\n'
@@ -554,7 +443,6 @@ gen_header(const oks::OksClass *cl,
                   << dx << "        check_init();\n"
                   << dx << "        return m_" << aname << ";\n"
                   << dx << "      }\n\n";
-              java_file << "get_" << aname << "() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException;\n\n";
 
               // generate set method description
 
@@ -563,8 +451,6 @@ gen_header(const oks::OksClass *cl,
                   description += i->get_name();
                   description += "\" attribute value.\n\n";
                   description += i->get_description();
-
-                  print_description(java_file, description + "\n@param value  new attribute value\n", "  ");
 
                   std::string description2("\\brief ");
                   description2 += description;
@@ -577,12 +463,10 @@ gen_header(const oks::OksClass *cl,
               // generate set method
 
               cpp_file << dx << "    void\n" << dx << "    set_" << aname << '(';
-              java_file << "  void set_" << aname << '(' << java_type;
 
               if (i->get_is_multi_values())
                 {
                   cpp_file << "const std::vector<" << cpp_type << ">&";
-                  java_file << "[]";
                 }
               else
                 {
@@ -602,8 +486,6 @@ gen_header(const oks::OksClass *cl,
                 << dx << "        check();\n"
                 << dx << "        clear();\n"
                 << dx << "        p_obj.";
-
-              java_file << " value) throws oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.SystemException;\n";
 
               if (i->get_data_type() == oks::OksData::string_type && i->get_is_multi_values() == false)
                 {
@@ -670,14 +552,10 @@ gen_header(const oks::OksClass *cl,
               // generate description
 
                 {
-                  java_file << "\n";
-
                   std::string description("Get \"");
                   description += i->get_name();
                   description += "\" relationship value.\n\n";
                   description += i->get_description();
-
-                  print_description(java_file, description + "\n@return the relationship value\n", "  ");
 
                   std::string description2("\\brief ");
                   description2 += description;
@@ -693,14 +571,10 @@ gen_header(const oks::OksClass *cl,
 
               const std::string rname(alnum_name(i->get_name()));
               std::string full_cpp_class_name = get_full_cpp_class_name(i->get_class_type(), cl_info, cpp_ns_name);
-              std::string full_java_class_name = get_full_java_class_name(i->get_class_type(), cl_info, java_pack_name);
-
-              java_file << "  " << full_java_class_name;
 
               if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
                 {
                   cpp_file << "std::vector<const " << full_cpp_class_name << "*>&";
-                  java_file << "[]";
                 }
               else
                 {
@@ -741,7 +615,6 @@ gen_header(const oks::OksClass *cl,
               cpp_file
                   << dx << "      return m_" << rname << ";\n"
                   << dx << "    }\n\n\n";
-              java_file << " get_" << rname << "() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException;\n\n";
 
               // generate set method
 
@@ -750,8 +623,6 @@ gen_header(const oks::OksClass *cl,
                   description += i->get_name();
                   description += "\" relationship value.\n\n";
                   description += i->get_description();
-
-                  print_description(java_file, description + "\n@param value  new relationship value\n", "  ");
 
                   std::string description2("\\brief ");
                   description2 += description;
@@ -762,12 +633,10 @@ gen_header(const oks::OksClass *cl,
                 }
 
               cpp_file << dx << "    void\n" << dx << "    set_" << rname << "(const ";
-              java_file << "  void set_" << rname << '(' << full_java_class_name;
 
               if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
                 {
                   cpp_file << "std::vector<const " << full_cpp_class_name << "*>&";
-                  java_file << "[]";
                 }
               else
                 {
@@ -775,7 +644,6 @@ gen_header(const oks::OksClass *cl,
                 }
 
               cpp_file << " value);\n\n";
-              java_file << " value) throws oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.SystemException;\n\n";
             }
         }
     }
@@ -786,7 +654,6 @@ gen_header(const oks::OksClass *cl,
   if (const std::list<oks::OksMethod*> *mlist = cl->direct_methods())
     {
       bool cpp_comment_is_printed = false;
-      bool java_comment_is_printed = false;
 
       for (const auto& i : *mlist)
         {
@@ -824,32 +691,6 @@ gen_header(const oks::OksClass *cl,
                 }
             }
 
-          // Java algorithms
-
-          if (oks::OksMethodImplementation * mi = find_java_method_implementation(i))
-            {
-              if (java_comment_is_printed == false)
-                {
-                  java_file << "\n\n      // user-defined algorithms\n";
-                  java_comment_is_printed = true;
-                }
-
-              // generate description
-
-              java_file << "\n\n";
-              print_description(java_file, i->get_description(), "  ");
-
-              // generate prototype
-
-              java_file << "  " << add_java_package_names(mi->get_prototype(), cl->get_kernel(), cl_info, java_pack_name) << ";\n";
-
-              std::string public_section = get_public_section(mi);
-
-              if (!public_section.empty())
-                {
-                  print_indented(java_file, public_section, "  ");
-                }
-            }
         }
     }
 
@@ -857,7 +698,6 @@ gen_header(const oks::OksClass *cl,
     // class finished
 
   cpp_file << dx << "};\n\n";
-  java_file << "}\n\n";
 
 
     // generate ostream operators and typedef for iterator
@@ -914,7 +754,6 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
   cpp_s << "#include \"logging/Logging.hpp\"\n\n";
 
   const std::string name(alnum_name(cl->get_name()));
-  const std::string iname(get_java_impl_name(name));;
 
   std::set<oks::OksClass *> rclasses;
 
@@ -1490,725 +1329,6 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
 }
 
 static void
-gen_java_helper(const oks::OksClass *cl, std::ostream& s)
-{
-  const std::string name(alnum_name(cl->get_name()));
-  const std::string iname(get_java_impl_name(name));;
-  const std::string hname(get_java_helper_name(name));;
-
-    {
-      std::string txt("Defines methods to get and to create objects of {@link ");
-      txt += name;
-      txt +=
-        "} by identity or by query.\n"
-        "<p>\n"
-        "If something goes wrong the methods can throw several exceptions:\n"
-        "<ul>\n"
-        " <li><code>oksdbinterfaces.NotFoundException</code> - in case if given class or object can not be found\n"
-        " <li><code>oksdbinterfaces.SystemException</code> - if case of system problems (communication or implementation database failure, etc.)\n"
-        "</ul>\n"
-        "<p>\n"
-        "In addition the methods to create object can throw <code>oksdbinterfaces.NotAllowedException</code> "
-        "exception in case, if there are no write access rights or database is already locked by other process.\n"
-        "\n"
-        "@author genconfig\n";
-
-      print_description(s, txt, "");
-    }
-
-  s << "public class " << hname << " {\n\n";
-
-    {
-      std::string d("Method to get an object by oksdbinterfaces object.\n"
-          "It is used by the oksdbinterfaces.Configuration class.\n"
-          "@param db   oksdbinterfacesuration object\n"
-          "@param obj  oksdbinterfaces object\n"
-          "@return     object of ");
-      d += name;
-      d += " class\n";
-
-      print_description(s, d, "  ");
-    }
-
-  s <<
-    "  static public " << name << " get(oksdbinterfaces.Configuration db, oksdbinterfaces.ConfigObject obj) {\n"
-    "    if(obj == null) { return null; }\n"
-    "    synchronized(db) {\n"
-    "      " << iname << " o = (" << iname << ")db.get(\"" << name << "\", obj);\n"
-    "      if(o == null) {\n"
-    "        o = new " << iname << "(db, obj);\n"
-    "        db.add(\"" << name << "\", obj.UID(), o);\n"
-    "      }\n"
-    "      return o;\n"
-    "    }\n"
-    "  }\n"
-    "\n"
-    "\n"
-    "  static public " << name << " get(oksdbinterfaces.Configuration db, oksdbinterfaces.ConfigObject obj, String id) {\n"
-    "    if(obj == null) { return null; }\n"
-    "    synchronized(db) {\n"
-    "      " << iname << " o = (" << iname << ")db.get(\"" << name << "\", id);\n"
-    "      if(o == null) {\n"
-    "        o = new " << iname << "(db, obj, id);\n"
-    "        db.add(\"" << name << "\", id, o);\n"
-    "      }\n"
-    "      return o;\n"
-    "    }\n"
-    "  }\n"
-    "\n"
-    "\n";
-
-    {
-      std::string d("Method to casts existing object to object of ");
-      d += name;
-      d += " class.\n"
-          "@param db   oksdbinterfacesuration object\n"
-          "@param obj  oksdbinterfaces object\n\n"
-          "@return     object of ";
-      d += name;
-      d += " class\n\n"
-          "@deprecated use {@link #cast(oksdbinterfaces.DalObject)} instead.";
-
-      print_description(s, d, "  ");
-    }
-
-  s <<
-    "  @Deprecated\n"
-    "  static public " << name << " cast(oksdbinterfaces.Configuration db, oksdbinterfaces.DalObject obj) {\n"
-    "    return cast(obj);\n"
-    "  }\n"
-    "\n"
-    "\n";
-
-    {
-      std::string d("Method to casts existing object to object of ");
-      d += name;
-      d += " class.\n"
-          "@param obj oksdbinterfaces object\n"
-          "@return    object of ";
-      d += name;
-      d += " class\n\n";
-
-      print_description(s, d, "  ");
-    }
-
-  s <<
-    "  static public " << name << " cast(oksdbinterfaces.DalObject obj) {\n"
-    "    synchronized(obj.oksdbinterfacesuration_object()) {\n"
-    "      if(obj == null || obj.oksdbinterfacesuration_object().try_cast(obj.class_name(), \"" + name + "\") == false) { return null; }\n"
-    "        // try to read object from cache of generated objects\n"
-    "      " << iname << " o = (" << iname << ")obj.oksdbinterfacesuration_object().get(\"" << name << "\", obj.UID());\n"
-    "        // if there is no such object in the cache yet, create it\n"
-    "      if(o == null) {\n"
-    "        return get(obj.oksdbinterfacesuration_object(), obj.config_object(), obj.UID());\n"
-    "      }\n"
-    "      return o;\n"
-    "    }\n"
-    "  }\n"
-    "\n"
-    "\n";
-
-    {
-      std::string d("Method to get an object by identity.\n"
-          "If no such object, the method throws exception oksdbinterfaces.NotFoundException.\n"
-          "@param db   oksdbinterfacesuration object\n"
-          "@param id   identity of the object\n"
-          "@return     object of ");
-      d += name;
-      d += " class\n";
-
-      print_description(s, d, "  ");
-    }
-
-  s <<
-    "  static public " << name << " get(oksdbinterfaces.Configuration db, String id) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException {\n"
-    "    synchronized(db) {\n"
-    "        // check the object is already in cache\n"
-    "      " << name << " o = (" << name << ")db.get(\"" << name << "\", id);\n"
-    "      if(o != null) return o;\n"
-    "\n"
-    "        // check the object exists and get it from database\n"
-    "      oksdbinterfaces.ConfigObject obj = db.get_object(\"" << name << "\", id);\n"
-    "      return get(db, obj);\n"
-    "    }\n"
-    "  }\n"
-    "\n"
-    "\n";
-
-
-    {
-      std::string d("Method to get objects of class.\n"
-          "If the query is empty, then all objects of class are returned.\n"
-          "Otherwise returns objects which satisfy query.\n"
-          "@param db     oksdbinterfacesuration object\n"
-          "@param query  query (see oksdbinterfaces.Query)\n"
-          "@return       vector of objects of ");
-      d += name;
-      d += " class\n";
-
-      print_description(s, d, "  ");
-    }
-
-  s <<
-    "  static public " << name << "[] get(oksdbinterfaces.Configuration db, oksdbinterfaces.Query query) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException {\n"
-    "    synchronized(db) {\n"
-    "      ConfigObject[] objs = db.get_objects(\"" << name << "\", query);\n"
-    "      " << name << "[] result = new " << name << "[objs.length];\n"
-    "      for (int i = 0; i < objs.length; i++) {\n"
-    "        result[i] = get(db, objs[i]);\n"
-    "      }\n"
-    "      return result;\n"
-    "    }\n"
-    "  }\n"
-    "\n";
-
-
-  {
-      std::string d("Method to create object of this class in given database file.\n"
-          "@param db     oksdbinterfacesuration object\n"
-          "@param file   name of the database file\n"
-          "@param id     object identity\n"
-          "@return       object of ");
-      d += name;
-      d += " class\n";
-
-      print_description(s, d, "  ");
-  }
-
-  s <<
-    "  static public " << name << " create(oksdbinterfaces.Configuration db, String file, String id) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.AlreadyExistsException {\n"
-    "    return get(db, db.create(file, \"" << name << "\", id));\n"
-    "  }\n"
-    "\n";
-
-
-    {
-      std::string d("Method to create an object of ");
-      d += name;
-      d += " class in database file storing existing object.\n"
-          "@param db     oksdbinterfacesuration object\n"
-          "@param at     create new object at the same database where \b 'at' object is stored\n"
-          "@param id     object identity\n"
-          "@return       object of ";
-      d += name;
-      d += " class\n";
-
-      print_description(s, d, "  ");
-    }
-
-  s <<
-    "  static public " << name << " create(oksdbinterfaces.Configuration db, oksdbinterfaces.DalObject at, String id) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.AlreadyExistsException {\n"
-    "    return get(db, db.create(at.config_object(), \"" << name << "\", id));\n"
-    "  }\n"
-    "\n";
-
-
-  s <<
-    "}\n";
-}
-
-static void
-gen_java_implementation(const oks::OksClass *cl,
-                        std::ostream& s,
-                        const std::string& java_pack_name,
-                        const ClassInfo::Map& cl_info)
-{
-  const std::string name(alnum_name(cl->get_name()));
-  const std::string iname(get_java_impl_name(name));;
-  const std::string hname(get_java_helper_name(name));;
-
-
-    // java implementation class declaration
-
-  s <<
-    "class " << iname << " implements " << name << " {\n"
-    "\n"
-    "    // base attributes\n"
-    "\n"
-    "  private oksdbinterfaces.Configuration p_db;\n"
-    "  private oksdbinterfaces.ConfigObject p_obj;\n"
-    "  private boolean p_was_read;\n"
-    "  private String p_uid;\n"
-    "  private String p_class_name;\n\n";
-
-
-    // generate class attributes && relationships
-
-  if (const std::list<oks::OksAttribute*> * alist = cl->all_attributes())
-    {
-      s << "\n    // database class attributes\n\n";
-      for (const auto& i : *alist)
-        {
-          s << "  private " << get_type(i->get_data_type(), false) << ((i->get_is_multi_values()) ? "[]" : "") << " m_" << alnum_name(i->get_name()) << ";\n";
-        }
-    }
-
-
-  if (const std::list<oks::OksRelationship*> * rlist = cl->all_relationships())
-    {
-      s << "\n\n    // database class relationships\n\n";
-      for (const auto& i : *rlist)
-        {
-          s << "  private " << get_full_java_class_name(i->get_class_type(), cl_info, java_pack_name) << ((i->get_high_cardinality_constraint() == oks::OksRelationship::Many) ? "[]" : "") << " m_" << alnum_name(i->get_name()) << ";\n";
-        }
-    }
-
-  if (const std::list<oks::OksMethod*> * mlist = cl->all_methods())
-    {
-      for (const auto& i : *mlist)
-        {
-          if (oks::OksMethodImplementation * mi = find_java_method_implementation(i))
-            {
-              std::string method_extension = get_private_section(mi);
-              if (!method_extension.empty())
-                {
-                  s << "\n" << "      // extension of method " << cl->get_name() << "::" << i->get_name() << "()\n";
-                  print_indented(s, method_extension, "  ");
-                }
-            }
-        }
-    }
-
-
-    // generate constructor and uid/class-name methods
-
-  s <<
-    "\n\n\n"
-    "    // constructor\n"
-    "\n"
-    "  public " << iname << "() {\n"
-    "    p_obj = null;\n"
-    "  }\n"
-    "\n"
-    "  public " << iname << "(oksdbinterfaces.Configuration db, oksdbinterfaces.ConfigObject obj) {\n"
-    "    init_oksdbinterfaces_params(db, obj, obj.UID());\n"
-    "  }\n"
-    "\n"
-    "  public " << iname << "(oksdbinterfaces.Configuration db, oksdbinterfaces.ConfigObject obj, String id) {\n"
-    "    init_oksdbinterfaces_params(db, obj, id);\n"
-    "  }\n"
-    "\n"
-    "  public void init_oksdbinterfaces_params(oksdbinterfaces.Configuration db, oksdbinterfaces.ConfigObject obj, String id) {\n"
-    "    p_db = db;\n"
-    "    p_obj = obj;\n"
-    "    p_was_read = false;\n"
-    "    p_uid = id;\n"
-    "    p_class_name = p_obj.class_name();\n"
-    "  }\n"
-    "\n"
-    "  public String UID() {\n"
-    "    return p_uid;\n"
-    "  }\n"
-    "\n"
-    "  public String class_name() {\n"
-    "    return p_class_name;\n"
-    "  }\n\n"
-    "  public void update() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException {\n"
-    "    synchronized(p_db) {\n"
-    "      p_was_read = false;\n"
-    "      p_obj.clean();\n"
-    "      init();\n"
-    "    }\n"
-    "  }\n\n"
-    "  public void unread(boolean clear_implementation_object) {\n"
-    "    p_was_read = false;\n"
-    "    if(clear_implementation_object == true) {\n"
-    "      p_obj.clean();\n"
-    "    }\n"
-    "  }\n\n";
-
-
-    // generate init method
-
-  s <<
-    "\n\n"
-    "  private void check_validity() throws oksdbinterfaces.NotValidException {\n"
-    "    if(p_obj == null || p_obj.is_valid() == false) {\n"
-    "      throw new oksdbinterfaces.NotValidException(\"object \" + p_uid + \"@\" + p_class_name + \" is not valid\");\n"
-    "    }\n"
-    "  }\n\n"
-    "  private void init() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException {\n"
-    "    synchronized(p_db) {\n"
-    "      check_validity();\n"
-    "      if(p_was_read == true) {return;}\n\n";
-
-  if (const std::list<oks::OksAttribute*> * alist = cl->all_attributes())
-    {
-      for (const auto& i : *alist)
-        {
-          const std::string aname(alnum_name(i->get_name()));
-          std::string java_type = get_type(i->get_data_type(), false);
-
-          s << "      m_" << aname << " = p_obj.get_";
-          if (java_type == "String")
-            {
-              s << "string";
-            }
-          else if (java_type == "boolean")
-            {
-              s << "bool";
-            }
-          else
-            {
-              s << java_type;
-            }
-
-          s << ((i->get_is_multi_values()) ? "s" : "") << "(\"" << i->get_name() << "\");\n";
-
-          if (java_type == "String")
-            {
-              if (i->get_is_multi_values())
-                {
-                  s <<
-                      "      {\n"
-                      "        for(int i = 0; i < m_" << aname << ".length; ++i) {\n"
-                      "          m_" << aname << "[i] = (String)p_db.convert((Object)m_" << aname << "[i], p_obj, \"" << i->get_name() << "\");\n"
-                      "        }\n"
-                      "      }\n\n";
-                }
-              else
-                {
-                  s << "      m_" << aname << " = (String)p_db.convert((Object)m_" << aname << ", p_obj, \"" << i->get_name() << "\");\n\n";
-                }
-            }
-          else
-            {
-              s << std::endl;
-            }
-
-        }
-    }
-
-  if (const std::list<oks::OksRelationship*> * rlist = cl->all_relationships())
-    {
-      for (const auto& i : *rlist)
-        {
-          const std::string rname(alnum_name(i->get_name()));
-          std::string java_class_name = get_full_java_class_name(i->get_class_type(), cl_info, java_pack_name);
-          std::string jhc_name = get_java_helper_name(java_class_name);
-
-          if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
-            {
-              s <<
-                  "      {\n"
-                  "        ConfigObject[] objs = p_obj.get_objects(\"" << i->get_name() << "\");\n"
-                  "        m_" << rname << " = new " << java_class_name << "[objs.length];\n"
-                  "        for( int i = 0; i < objs.length; i++ ) {\n"
-                  "          m_" << rname << "[i] = " << jhc_name << ".get(p_db, objs[i]);\n"
-                  "        }\n"
-                  "      }\n"
-                  "      \n";
-            }
-          else
-            {
-              s << "      m_" << rname << " = " << jhc_name << ".get(p_db, p_obj.get_object(\"" << i->get_name() << "\"));\n\n";
-            }
-        }
-    }
-
-  if (const std::list<oks::OksMethod*> * mlist = cl->all_methods())
-    {
-      for (const auto& i : *mlist)
-        {
-          if (oks::OksMethodImplementation * mi = find_java_method_implementation(i))
-            {
-              std::string member_initializer_list = get_member_initializer_list(mi);
-              if (!member_initializer_list.empty())
-                {
-                  s << "\n" << "      // extension of method " << cl->get_name() << "::" << i->get_name() << "()\n";
-                  print_indented(s, member_initializer_list, "      ");
-                }
-            }
-        }
-    }
-
-
-  s <<
-    "\n"
-    "      p_was_read = true;\n\n"
-    "    }\n\n"
-    "  }\n\n";
-
-
-  if (const std::list<oks::OksAttribute*> * alist = cl->all_attributes())
-    {
-      for (const auto& i : *alist)
-        {
-          const std::string aname(alnum_name(i->get_name()));
-          std::string java_type = get_type(i->get_data_type(), false);
-
-          std::string method_name(java_type);
-
-          if (java_type == "String")
-            {
-              method_name = "string";
-            }
-          else if (java_type == "boolean")
-            {
-              method_name = "bool";
-            }
-
-          s <<
-              "  public " << java_type << (i->get_is_multi_values() ? "[]" : "") << " get_" << aname << "() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException {\n"
-              "    check_validity();\n"
-              "    if(p_was_read == false) {init();}\n"
-              "    return m_" << aname << ";\n"
-              "  }\n\n"
-              "  public void set_" << aname << '(' << java_type << (i->get_is_multi_values() ? "[]" : "") << " value) throws oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.SystemException {\n"
-              "    synchronized(p_db) {\n"
-              "      check_validity();\n"
-              "      p_obj.clean();\n"
-              "      p_obj.set_" << method_name << (i->get_is_multi_values() ? "s" : "") << "(\"" << i->get_name() << "\", value);\n"
-              "      m_" << aname << " = value;\n"
-              "    }\n"
-              "  }\n\n";
-        }
-    }
-
-  if (const std::list<oks::OksRelationship*> * rlist = cl->all_relationships())
-    {
-      for (const auto& i : *rlist)
-        {
-          const std::string rname(alnum_name(i->get_name()));
-          std::string full_rel_class_name = get_full_java_class_name(i->get_class_type(), cl_info, java_pack_name);
-          const char * rel_ext = (i->get_high_cardinality_constraint() == oks::OksRelationship::Many ? "[]" : "");
-
-          s << "  public " << full_rel_class_name << rel_ext << " get_" << rname << "() throws oksdbinterfaces.GenericException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.SystemException {\n"
-              "    check_validity();\n"
-              "    if(p_was_read == false) {init();}\n"
-              "    return m_" << rname << ";\n"
-              "  }\n\n"
-              "  public void set_" << rname << '(' << full_rel_class_name << rel_ext << " value) throws oksdbinterfaces.NotFoundException, oksdbinterfaces.NotValidException, oksdbinterfaces.NotAllowedException, oksdbinterfaces.SystemException {\n"
-              "    synchronized(p_db) {\n"
-              "      check_validity();\n"
-              "      p_obj.clean();\n";
-
-          if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
-            {
-              s << "      oksdbinterfaces.ConfigObject[] objs = new oksdbinterfaces.ConfigObject[value.length];\n"
-                  "      for(int i = 0; i < value.length; i++) {\n"
-                  "        objs[i] = value[i].config_object();\n"
-                  "      }\n"
-                  "      p_obj.set_objects(\"" << i->get_name() << "\", objs);\n";
-            }
-          else
-            {
-              s << "      p_obj.set_object(\"" << i->get_name() << "\", value.config_object());\n";
-            }
-
-          s << "      m_" << rname << " = value;\n"
-              "    }\n"
-              "  }\n\n";
-        }
-    }
-
-  if (const std::list<oks::OksMethod*> *mlist = cl->all_methods())
-    {
-      bool java_comment_is_printed = false;
-      for (const auto& i : *mlist)
-        {
-          oks::OksMethodImplementation * mi = find_java_method_implementation(i);
-
-          if (mi && !get_method_implementation_body(mi).empty())
-            {
-              if (java_comment_is_printed == false)
-                {
-                  s << "\n      // user-defined algorithms\n\n";
-                  java_comment_is_printed = true;
-                }
-
-              s << "  public " << add_java_package_names(mi->get_prototype(), cl->get_kernel(), cl_info, java_pack_name) << " {\n"
-                  "    synchronized(p_db) {\n"
-                  "      " << add_java_package_names(get_method_implementation_body(mi), cl->get_kernel(), cl_info, java_pack_name) << "\n"
-                  "    }\n"
-                  "  }\n\n";
-            }
-        }
-
-      if (java_comment_is_printed)
-        {
-          s << std::endl;
-        }
-    }
-
-
-
-    // generate method returning oksdbinterfaces object
-
-  s <<
-    "  public oksdbinterfaces.ConfigObject config_object() {\n"
-    "    return p_obj;\n"
-    "  }\n\n"
-    "  public oksdbinterfaces.Configuration oksdbinterfacesuration_object() {\n"
-    "    return p_db;\n"
-    "  }\n\n";
-
-
-    // generate print method
-
-  s <<
-    "  public void print(String dx) {\n"
-    "    System.out.println(dx + \"";
-
-  if(!java_pack_name.empty()) {
-    s << java_pack_name << ' ';
-  }
-
-  s << name <<
-    " object:\" );\n"
-    "    synchronized(p_db) {\n"
-    "      System.out.println(dx + \"  id: \\'\" + UID() + \"\\', class name: \\'\" + class_name() + \"\\'\");\n";
-
-
-  if (const std::list<oks::OksAttribute*> * alist = cl->all_attributes())
-    if(!alist->empty())
-      {
-        s << "\n\n      // print attributes\n"
-             "      try {\n\n";
-
-        for (const auto& i : *alist)
-          {
-            const std::string aname(alnum_name(i->get_name()));
-            std::string atype = get_type(i->get_data_type(), false);
-
-            std::string fm1, fm2;
-
-            if (i->get_format() != oks::OksAttribute::Dec)
-              {
-                fm1 = ((i->get_format() == oks::OksAttribute::Hex) ? "Long.toHexString(" : "Long.toOctalString(");
-                fm2 = ")";
-
-                if (atype == "short")
-                  {
-                    fm1 += "(long)";
-                  }
-              }
-
-            if (i->get_is_multi_values())
-              {
-                s <<
-                    "        if(get_" << aname << "().length > 0) {\n"
-                    "          System.out.print(dx + \"  \" + get_" << aname << "().length + \" value(s) in " << i->get_name() << " : \");\n"
-                    "\n"
-                    "          for(int i = 0; i < get_" << aname << "().length; i++) {\n"
-                    "            if(i != 0) {System.out.print(\", \");}\n"
-                    "            System.out.print(" << fm1 << "get_" << aname << "()[i]" << fm2 << ");\n"
-                    "          }\n"
-                    "\n"
-                    "          System.out.println(\"\");\n"
-                    "        }\n"
-                    "        else {\n"
-                    "          System.out.println(dx + \"  " << i->get_name() << " value is empty\");\n"
-                    "        }\n";
-              }
-            else
-              {
-                s << "        System.out.println(dx + \"  " << i->get_name() << ": \" + " << fm1 << "get_" << aname << "()" << fm2 << ");\n";
-              }
-          }
-
-        s <<
-                    "\n"
-                    "      }\n"
-                    "      catch (final oksdbinterfaces.ConfigException ex) {\n"
-                    "        System.err.println(\"cannot read an attribute: \" + ex.getMessage());\n"
-                    "      }\n\n";
-      }
-
-  if (const std::list<oks::OksRelationship*> * rlist = cl->all_relationships())
-    if(!rlist->empty())
-      {
-        s << "\n\n      // print relationships\n"
-            "      try {\n\n";
-
-        for (const auto& i : *rlist)
-          {
-            const std::string rname(alnum_name((i)->get_name()));
-            if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
-              {
-                s <<
-                    "        if(get_" << rname << "().length > 0) {\n"
-                    "          System.out.print(dx + \"  \" + get_" << rname << "().length + \" object(s) in " << i->get_name() << ':' << (i->get_is_composite() ? "\\n" : " ") << "\");\n"
-                    "\n"
-                    "          for(int i = 0; i < get_" << rname << "().length; i++) {\n";
-
-                if (i->get_is_composite())
-                  {
-                    s << "            get_" << rname << "()[i].print(dx.concat(\"    \"));\n";
-                  }
-                else
-                  {
-                    s <<
-                        "            if(i != 0) {System.out.print(\", \");}\n"
-                        "            System.out.print(\"\\\'\" + get_" << rname << "()[i].UID() + \"@\" + get_" << rname << "()[i].class_name()+ \"\\\'\");\n";
-                  }
-  
-                s << "          }\n";
-
-                if (i->get_is_composite() == false)
-                  {
-                    s << "          System.out.println(\"\");\n";
-                  }
-
-                s <<
-                    "        }\n"
-                    "        else {\n"
-                    "          System.out.println(dx + \"  " << i->get_name() << " value is empty\");\n"
-                    "        }\n\n";
-              }
-            else
-              {
-                s <<
-                    "        System.out.print(dx + \"  " << i->get_name() << ": \");\n"
-                    "        if(get_" << rname << "() == null) {\n"
-                    "          System.out.println(\"(null)\");\n"
-                    "        }\n"
-                    "        else {\n";
-
-                if (i->get_is_composite() == false)
-                  {
-                    s << "          System.out.println(\"\\\'\" + get_" << rname << "().UID() + \"@\" + get_" << rname << "().class_name()+ \"\\\'\");\n";
-                  }
-                else
-                  {
-                    s << "          get_" << rname << "().print(dx.concat(\"    \"));\n";
-                  }
-
-                s << "        }\n";
-              }
-          }
-
-       s <<
-                    "      }\n"
-                    "      catch (final oksdbinterfaces.ConfigException ex) {\n"
-                    "        System.err.println(\"cannot read a relationship: \" + ex.getMessage());\n"
-                    "      }\n\n";
-      }
-
-  s << "    }\n"
-       "  }\n\n";
-
-    // method to destroy object
-
-  print_description(
-    s,
-    "Method to destroy object.\n"
-    "@param db     oksdbinterfacesuration object\n",
-    "  "
-  );
-
-  s <<
-    "  public void destroy(oksdbinterfaces.Configuration db) throws oksdbinterfaces.SystemException, oksdbinterfaces.NotFoundException, oksdbinterfaces.NotAllowedException {\n"
-    "    db.destroy(config_object());\n"
-    "  }\n";
-
-    // close java class
-
-  s << "}\n";
-}
-
-
-static void
 load_schemas(oks::OksKernel& kernel, const std::list<std::string>& file_names, std::set<oks::OksFile *, std::less<oks::OksFile *> >& file_hs)
 {
   for (const auto& i : file_names)
@@ -2250,81 +1370,6 @@ gen_cpp_header_prologue(const std::string& file_name,
 
 
 static void
-gen_java_prologue(std::ostream& s,
-		  const std::string& java_pack_name,
-		  const oks::OksClass * cl,
-		  const ClassInfo::Map& cl_info,
-		  bool is_impl,
-		  bool is_helper)
-{
-  s << "package " << java_pack_name << ";\n\n\n";
-
-  std::string text = (
-    is_impl
-      ? "Implements class "
-      : (is_helper ? "Helper for class " : "Generated from OKS class ")
-  );
-
-    // generate file description
-
-  text += cl->get_name();
-  text += "\n"
-          "!!! this file is generated, do not modify it !!!\n"
-          "@author genconfig utility\n\n\n";
-  
-  print_description(s, text, "  ");
-
-  s <<
-    "\n"
-    "  // import oksdbinterfacesuration classes\n\n"
-    "import oksdbinterfaces.*;\n\n\n";
-
-
-    // generate import statements
-
-  if (is_helper == false)
-    {
-      std::set<oks::OksClass *> jclasses;
-
-      if (const std::list<std::string*> * super_list = cl->direct_super_classes())
-        {
-          for (const auto& i : *super_list)
-            {
-              jclasses.insert(cl->get_kernel()->find_class(*i));
-            }
-        }
-
-      if (const std::list<oks::OksRelationship*> * r_list = (is_impl ? cl->all_relationships() : cl->direct_relationships()))
-        {
-          for (const auto& i : *r_list)
-            {
-              jclasses.insert(i->get_class_type());
-            }
-        }
-
-      if (!jclasses.empty())
-        {
-          s << "  // import used generated classes\n\n";
-
-          for (const auto& j : jclasses)
-            {
-              if (cl != j)
-                {
-                  const std::string& pname = get_package_name(j, cl_info, java_pack_name);
-                  std::string nm(alnum_name(j->get_name()));
-                  s << "import " << pname << '.' << nm << ";\n";
-                  if (is_impl)
-                    s << "import " << pname << '.' << get_java_helper_name(nm) << ";\n";
-                }
-            }
-
-          s << "\n\n";
-        }
-    }
-}
-
-
-static void
 gen_cpp_header_epilogue(std::ostream& s)
 {
   s << "\n#endif\n";
@@ -2360,12 +1405,10 @@ main(int argc, char *argv[])
   std::string cpp_dir_name = ".";                // directory for c++ implementation files
   std::string cpp_hdr_dir = "";                  // directory for c++ header files
   std::string cpp_ns_name = "";                  // c++ namespace
-  std::string java_dir_name = ".";               // directory for java files
-  std::string java_pack_name = "";               // java package name
   std::string info_file_name = "genconfig.info"; // name of info file
   bool verbose = false;
 
-  parse_arguments(argc, argv, class_names, file_names, include_dirs, user_classes, cpp_dir_name, cpp_ns_name, cpp_hdr_dir, java_dir_name, java_pack_name, info_file_name, verbose);
+  parse_arguments(argc, argv, class_names, file_names, include_dirs, user_classes, cpp_dir_name, cpp_ns_name, cpp_hdr_dir, info_file_name, verbose);
 
   // init OKS
 
@@ -2512,20 +1555,12 @@ main(int argc, char *argv[])
       for (const auto& cl : generated_classes)
         {
           std::string name(alnum_name(cl->get_name()));
-          std::string iname(get_java_impl_name(name));     // implementation
-          std::string hname(get_java_helper_name(name));   // helper
 
           std::string cpp_hdr_name = cpp_dir_name + "/" + name + ".hpp";
           std::string cpp_src_name = cpp_dir_name + "/" + name + ".cpp";
-          std::string java_h_name = java_dir_name + "/" + name + ".java";
-          std::string java_i_name = java_dir_name + "/" + iname + ".java";
-          std::string java_p_name = java_dir_name + "/" + hname + ".java";
 
           std::ofstream cpp_hdr_file(cpp_hdr_name.c_str());
           std::ofstream cpp_src_file(cpp_src_name.c_str());
-          std::ofstream java_h_file(java_h_name.c_str());
-          std::ofstream java_i_file(java_i_name.c_str());
-          std::ofstream java_p_file(java_p_name.c_str());
 
           if (!cpp_hdr_file)
             {
@@ -2539,51 +1574,13 @@ main(int argc, char *argv[])
               return (EXIT_FAILURE);
             }
 
-          if (!java_h_file)
-            {
-              std::cerr << "ERROR: can not create file \"" << java_h_name << "\"\n";
-              return (EXIT_FAILURE);
-            }
-
-          if (!java_i_file)
-            {
-              std::cerr << "ERROR: can not create file \"" << java_i_name << "\"\n";
-              return (EXIT_FAILURE);
-            }
-
-          if (!java_p_file)
-            {
-              std::cerr << "ERROR: can not create file \"" << java_p_name << "\"\n";
-              return (EXIT_FAILURE);
-            }
-
           gen_cpp_header_prologue(name, cpp_hdr_file, cpp_ns_name, cpp_hdr_dir);
           gen_cpp_body_prologue(name, cpp_src_file, cpp_hdr_dir);
-          gen_java_prologue(java_h_file, java_pack_name, cl, cl_info, false, false);
-          gen_java_prologue(java_p_file, java_pack_name, cl, cl_info, false, true);
-          gen_java_prologue(java_i_file, java_pack_name, cl, cl_info, true, false);
 
-          gen_header(cl, cpp_hdr_file, cpp_ns_name, cpp_hdr_dir, java_h_file, java_pack_name, cl_info);
+          gen_header(cl, cpp_hdr_file, cpp_ns_name, cpp_hdr_dir, cl_info);
           gen_cpp_body(cl, cpp_src_file, cpp_ns_name, cpp_hdr_dir, cl_info);
-          gen_java_implementation(cl, java_i_file, java_pack_name, cl_info);
-          gen_java_helper(cl, java_p_file);
 
           gen_cpp_header_epilogue(cpp_hdr_file);
-        }
-
-      // generate java AnyObject file
-
-        {
-          std::string java_file = java_dir_name + "/__AnyObject__.java";
-          std::ofstream java_a_file(java_file.c_str());
-
-          if (!java_a_file)
-            {
-              std::cerr << "ERROR: can not create file \"" << java_file << "\"\n";
-              return (EXIT_FAILURE);
-            }
-
-          gen_java_any_class(java_a_file, java_pack_name);
         }
 
       // generate dump applications
@@ -2645,7 +1642,7 @@ main(int argc, char *argv[])
 
           if (info)
             {
-              write_info_file(info, cpp_ns_name, cpp_hdr_dir, java_pack_name, generated_classes);
+              write_info_file(info, cpp_ns_name, cpp_hdr_dir, generated_classes);
             }
           else
             {

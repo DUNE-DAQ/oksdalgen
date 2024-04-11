@@ -25,19 +25,17 @@ class ClassInfo {
 
     ClassInfo() {};
 
-    ClassInfo(const std::string& cpp_ns_name, const std::string& dir_prefix, const std::string& package_name) :
-      p_namespace (cpp_ns_name), p_include_prefix (dir_prefix), p_package_name(package_name) {};
+    ClassInfo(const std::string& cpp_ns_name, const std::string& dir_prefix) :
+      p_namespace (cpp_ns_name), p_include_prefix (dir_prefix) {};
 
     const std::string& get_namespace() const {return p_namespace;}
     const std::string& get_include_prefix() const {return p_include_prefix;}
-    const std::string& get_package_name() const {return p_package_name;}
 
 
   private:
 
     std::string p_namespace;
     std::string p_include_prefix;
-    std::string p_package_name;
 
 };
 
