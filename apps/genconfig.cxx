@@ -26,11 +26,11 @@ extern void print_description(std::ostream& s, const std::string& text, const ch
 extern void print_indented(std::ostream& s, const std::string& text, const char * dx);
 extern std::string get_type(oks::OksData::Type oks_type, bool is_cpp);
 extern void gen_dump_application(std::ostream& s, std::list<std::string>& class_names, const std::string& cpp_ns_name, const std::string& cpp_hdr_dir, const char * conf_header, const char * conf_name, const char * headres_prologue, const char * main_function_prologue);
-extern void write_info_file(std::ostream& s, const std::string& cpp_namespace, const std::string& cpp_header_dir, const std::string& java_pname, const std::set<const oks::OksClass *, std::less<const oks::OksClass *> >& class_names);
+extern void write_info_file(std::ostream& s, const std::string& cpp_namespace, const std::string& cpp_header_dir, const std::set<const oks::OksClass *, std::less<const oks::OksClass *> >& class_names);
 extern std::string get_full_cpp_class_name(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string & cpp_ns_name);
 extern std::string get_include_dir(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string& cpp_hdr_dir);
-extern const std::string& get_package_name(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string& java_p_name);
-extern void parse_arguments(int argc, char *argv[], std::list<std::string>& class_names, std::list<std::string>& file_names, std::list<std::string>& include_dirs, std::list<std::string>& user_classes, std::string& cpp_dir_name, std::string& cpp_ns_name, std::string& cpp_hdr_dir, std::string& java_dir_name, std::string& java_pack_name, std::string& info_file_name, bool& verbose);
+// extern const std::string& get_package_name(const oks::OksClass * c, const ClassInfo::Map& cl_info, const std::string& java_p_name);
+extern void parse_arguments(int argc, char *argv[], std::list<std::string>& class_names, std::list<std::string>& file_names, std::list<std::string>& include_dirs, std::list<std::string>& user_classes, std::string& cpp_dir_name, std::string& cpp_ns_name, std::string& cpp_hdr_dir, std::string& info_file_name, bool& verbose);
 extern bool process_external_class(ClassInfo::Map& cl_info, const oks::OksClass * c, const std::list<std::string>& include_dirs, const std::list<std::string>& user_classes, bool verbose);
 extern std::string int2dx(int level);
 extern int open_cpp_namespace(std::ostream& s, const std::string& value);
@@ -44,7 +44,6 @@ extern std::string get_method_implementation_body(oks::OksMethodImplementation *
 extern bool get_add_algo_1(oks::OksMethodImplementation * mi);
 extern bool get_add_algo_n(oks::OksMethodImplementation * mi);
 extern oks::OksMethodImplementation * find_cpp_method_implementation(const oks::OksMethod * method);
-// extern oks::OksMethodImplementation * find_java_method_implementation(const oks::OksMethod * method);
 
 
   /**
@@ -1409,7 +1408,7 @@ main(int argc, char *argv[])
   std::string info_file_name = "genconfig.info"; // name of info file
   bool verbose = false;
 
-  parse_arguments(argc, argv, class_names, file_names, include_dirs, user_classes, cpp_dir_name, cpp_ns_name, cpp_hdr_dir, java_dir_name, java_pack_name, info_file_name, verbose);
+  parse_arguments(argc, argv, class_names, file_names, include_dirs, user_classes, cpp_dir_name, cpp_ns_name, cpp_hdr_dir, info_file_name, verbose);
 
   // init OKS
 
@@ -1643,7 +1642,7 @@ main(int argc, char *argv[])
 
           if (info)
             {
-              write_info_file(info, cpp_ns_name, cpp_hdr_dir, java_pack_name, generated_classes);
+              write_info_file(info, cpp_ns_name, cpp_hdr_dir, generated_classes);
             }
           else
             {

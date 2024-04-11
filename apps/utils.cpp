@@ -19,7 +19,7 @@ using namespace dunedaq::genconfig;
   /**
    *  The functions cvt_symbol() and alnum_name() are used
    *  to replace all symbols allowed in names of classes, attributes
-   *  and relationships, but misinterpreted by c++ or java.
+   *  and relationships, but misinterpreted by c++.
    */
 
 char
@@ -142,21 +142,21 @@ get_type(OksData::Type oks_type, bool is_cpp)
   return "invalid";
 }
 
-std::string
-get_java_impl_name(const std::string& s)
-{
-  std::string str(s);
-  str += "_Impl";
-  return str;
-}
+// std::string
+// get_java_impl_name(const std::string& s)
+// {
+//   std::string str(s);
+//   str += "_Impl";
+//   return str;
+// }
 
-std::string
-get_java_helper_name(const std::string& s)
-{
-  std::string str(s);
-  str += "_Helper";
-  return str;
-}
+// std::string
+// get_java_helper_name(const std::string& s)
+// {
+//   std::string str(s);
+//   str += "_Helper";
+//   return str;
+// }
 
 void
 gen_dump_application(std::ostream& s,
@@ -378,7 +378,7 @@ void
 write_info_file(std::ostream& s,
                 const std::string& cpp_namespace,
                 const std::string& cpp_header_dir,
-                const std::string& java_pname,
+                // const std::string& java_pname,
                 const std::set<const OksClass *, std::less<const OksClass *> >& classes)
 {
   std::time_t now = std::time(nullptr);
@@ -387,7 +387,7 @@ write_info_file(std::ostream& s,
       "// *** do not modify the file ***\n"
       "c++-namespace=" << cpp_namespace << "\n"
       "c++-header-dir-prefix=" << cpp_header_dir << "\n"
-      "java-package-name=" << java_pname << "\n"
+      // "java-package-name=" << java_pname << "\n"
       "classes:\n";
 
   for (const auto& i : classes)
@@ -413,31 +413,6 @@ get_full_cpp_class_name(const OksClass * c, const ClassInfo::Map& cl_info, const
 
   if (!s.empty())
     s += "::";
-
-  s += alnum_name(c->get_name());
-
-  return s;
-}
-
-
-  /**
-   *  The function get_full_java_class_name() returns name of class
-   *  with it's package name (e.g. "PACKAGE_A.CLASS_X")
-   */
-
-std::string
-get_full_java_class_name(const OksClass * c, const ClassInfo::Map& cl_info, const std::string & java_p_name)
-{
-  std::string s;
-  ClassInfo::Map::const_iterator idx = cl_info.find(c);
-
-  if (idx != cl_info.end())
-    s = (*idx).second.get_package_name();
-  else
-    s = java_p_name;
-
-  if (!s.empty())
-    s += ".";
 
   s += alnum_name(c->get_name());
 
@@ -473,22 +448,22 @@ get_include_dir(const OksClass * c, const ClassInfo::Map& cl_info, const std::st
 }
 
 
-const std::string&
-get_package_name(const OksClass * c, const ClassInfo::Map& cl_info, const std::string& java_p_name)
-{
-  std::string s;
+// const std::string&
+// get_package_name(const OksClass * c, const ClassInfo::Map& cl_info, const std::string& java_p_name)
+// {
+//   std::string s;
 
-  ClassInfo::Map::const_iterator idx = cl_info.find(c);
+//   ClassInfo::Map::const_iterator idx = cl_info.find(c);
 
-  if (idx != cl_info.end())
-    {
-      return (*idx).second.get_package_name();
-    }
-  else
-    {
-      return java_p_name;
-    }
-}
+//   if (idx != cl_info.end())
+//     {
+//       return (*idx).second.get_package_name();
+//     }
+//   else
+//     {
+//       return java_p_name;
+//     }
+// }
 
 bool
 process_external_class(
@@ -527,7 +502,7 @@ process_external_class(
 
       if (class_name == c->get_name())
         {
-          cl_info[c] = ClassInfo(cpp_ns_name, cpp_dir_name, "");
+          cl_info[c] = ClassInfo(cpp_ns_name, cpp_dir_name);
           if (verbose)
             {
               std::cout << " * class " << c->get_name() << " is defined by user in ";
@@ -568,7 +543,7 @@ process_external_class(
 
           std::string cpp_ns_name;
           std::string cpp_dir_name;
-          std::string java_pname;
+          // std::string java_pname;
           bool is_class = false;
 
           std::string s;
@@ -605,25 +580,25 @@ process_external_class(
                           if (verbose)
                             std::cout << " - c++ header dir prefix name = \"" << cpp_dir_name << "\"\n";
                         }
-                      else
-                        {
-                          const char s3[] = "java-package-name=";
-                          std::string::size_type idx = s.find(s3);
-                          if (idx != std::string::npos)
-                            {
-                              java_pname = s.substr(sizeof(s3) - 1);
-                              if (verbose)
-                                std::cout << " - java package name = \"" << java_pname << "\"\n";
-                            }
+                      // else
+                        // {
+                        //   const char s3[] = "java-package-name=";
+                        //   std::string::size_type idx = s.find(s3);
+                        //   if (idx != std::string::npos)
+                        //     {
+                        //       java_pname = s.substr(sizeof(s3) - 1);
+                        //       if (verbose)
+                        //         std::cout << " - java package name = \"" << java_pname << "\"\n";
+                        //     }
                           else if (is_class)
                             {
                               std::string cname = s.substr(2);
                               OksClass * cl = c->get_kernel()->find_class(cname);
                               if (cl && cl_info.find(cl) == cl_info.end())
                                 {
-                                  cl_info[cl] = ClassInfo(cpp_ns_name, cpp_dir_name, java_pname);
+                                  cl_info[cl] = ClassInfo(cpp_ns_name, cpp_dir_name);
                                   if (verbose)
-                                    std::cout << " * class " << cl->get_name() << " is defined by " << file_name << " in namespace \"" << cpp_ns_name << "\" with include prefix \"" << cpp_dir_name << "\" and java package name \"" << java_pname << "\"\n";
+                                    std::cout << " * class " << cl->get_name() << " is defined by " << file_name << " in namespace \"" << cpp_ns_name << "\" with include prefix \"" << cpp_dir_name << "\"\n";
                                   if (cl == c)
                                     found_class_declaration = true;
                                 }
@@ -636,7 +611,7 @@ process_external_class(
                             {
                               std::cerr << "Failed to parse line \"" << s << "\"\n";
                             }
-                        }
+                        // }
                     }
                 }
             }
@@ -688,32 +663,6 @@ close_cpp_namespace(std::ostream& s, int level)
     }
 }
 
-std::string
-add_java_package_names(const std::string& in, const OksKernel * kernel, const ClassInfo::Map& cl_info, const std::string& java_p_name)
-{
-  std::string out(in);
-
-  for (const auto& j : kernel->classes())
-    {
-      const std::string& s(j.second->get_name());
-      std::string::size_type idx = 0;
-      while ((idx = out.find(s, idx)) != std::string::npos)
-        {
-          if ((idx == 0 || (!isalnum(out[idx - 1]) && out[idx - 1] != '.')) && !isalnum(out[idx + s.size()]))
-            {
-              std::string full_name(get_full_java_class_name(j.second, cl_info, java_p_name));
-              out.replace(idx, s.size(), full_name);
-              idx += full_name.size();
-            }
-          else
-            {
-              idx += 1;
-            }
-        }
-    }
-
-  return out;
-}
 
 
 const std::string begin_header_prologue("BEGIN_HEADER_PROLOGUE");
@@ -838,8 +787,3 @@ find_cpp_method_implementation(const OksMethod * method)
   return find_method_implementation(method, { "c++", "C++" });
 }
 
-OksMethodImplementation *
-find_java_method_implementation(const OksMethod * method)
-{
-  return find_method_implementation(method, { "java", "Java" });
-}
