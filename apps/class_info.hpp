@@ -1,5 +1,5 @@
-#ifndef __GENCONFIG_CLASS_INFO__
-#define __GENCONFIG_CLASS_INFO__
+#ifndef __OKSDALGEN_CLASS_INFO__
+#define __OKSDALGEN_CLASS_INFO__
 
 #include "oks/class.hpp"
 
@@ -9,7 +9,7 @@
 #include <string>
 
 namespace dunedaq {
-namespace genconfig {
+namespace oksdalgen {
 
 class ClassInfo {
 
@@ -83,6 +83,6 @@ struct NameSpaceInfo
   }
 };
 
-} // namespace genconfig
+} // namespace oksdalgen
 } // namespace dunedaq
 #endif
