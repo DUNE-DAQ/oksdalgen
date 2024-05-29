@@ -10,7 +10,7 @@ static void
 usage()
 {
   std::cout <<
-    "usage: genconfig [-d | --c++-dir-name directory-name]\n"
+    "usage: oksdalgen [-d | --c++-dir-name directory-name]\n"
     "                 [-n | --c++-namespace namespace\n"
     "                 [-i | --c++-headers-dir directory-prefix]\n"
     "                 [-I | --include-dirs dirs*]\n"

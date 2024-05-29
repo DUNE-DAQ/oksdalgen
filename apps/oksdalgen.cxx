@@ -16,7 +16,7 @@
 #include <iostream>
 
 using namespace dunedaq;
-using namespace dunedaq::genconfig;
+using namespace dunedaq::oksdalgen;
 
   // declare external functions
 
@@ -198,11 +198,11 @@ gen_header(const oks::OksClass *cl,
       "<p>\n"
       "The methods can throw several exceptions:\n"
       "<ul>\n"
-      " <li><code>oksdbinterfaces.NotFoundException</code> - in case of wrong attribute or relationship name (e.g. in case of database schema modification)\n"
-      " <li><code>oksdbinterfaces.SystemException</code> - in case of system problems (communication or implementation database failure, schema modification, object destruction, etc.)\n"
+      " <li><code>conffwk.NotFoundException</code> - in case of wrong attribute or relationship name (e.g. in case of database schema modification)\n"
+      " <li><code>conffwk.SystemException</code> - in case of system problems (communication or implementation database failure, schema modification, object destruction, etc.)\n"
       "</ul>\n"
       "<p>\n"
-      "In addition the methods modifying database (set value, destroy object) can throw <code>oksdbinterfaces.NotAllowedException</code> "
+      "In addition the methods modifying database (set value, destroy object) can throw <code>conffwk.NotAllowedException</code> "
       "exception in case, if there are no write access rights or database is already locked by other process.\n";
 
     if (!cl->get_description().empty())
@@ -212,7 +212,7 @@ gen_header(const oks::OksClass *cl,
         txt += "\n";
       }
  
-    txt += "@author genconfig\n";
+    txt += "@author oksdalgen\n";
 
     cpp_file << std::endl;
     print_description(cpp_file, cl->get_description(), dx);
@@ -236,7 +236,7 @@ gen_header(const oks::OksClass *cl,
     }
   else
     {
-      cpp_file << "public virtual dunedaq::oksdbinterfaces::DalObject";
+      cpp_file << "public virtual dunedaq::conffwk::DalObject";
     }
 
   cpp_file << " {\n\n";
@@ -244,15 +244,15 @@ gen_header(const oks::OksClass *cl,
     // generate standard methods
 
   cpp_file
-    << dx << "  friend class oksdbinterfaces::Configuration;\n"
-    << dx << "  friend class oksdbinterfaces::Configuration::Cache<" << name << ">;\n\n"
-    << dx << "  friend class oksdbinterfaces::DalObject;\n\n"
+    << dx << "  friend class conffwk::Configuration;\n"
+    << dx << "  friend class conffwk::Configuration::Cache<" << name << ">;\n\n"
+    << dx << "  friend class conffwk::DalObject;\n\n"
     << dx << "  protected:\n\n"
-    << dx << "    " << name << "(oksdbinterfaces::Configuration& db, const oksdbinterfaces::ConfigObject& obj) noexcept;\n"
+    << dx << "    " << name << "(conffwk::Configuration& db, const conffwk::ConfigObject& obj) noexcept;\n"
     << dx << "    virtual ~" << name << "() noexcept;\n"
     << dx << "    virtual void init(bool init_children);\n\n"
     << dx << "  public:\n\n"
-    << dx << "      /** The name of the oksdbinterfacesuration class. */\n\n"
+    << dx << "      /** The name of the conffwkuration class. */\n\n"
     << dx << "    static const std::string& s_class_name;\n\n\n"
     << dx << "      /**\n"
     << dx << "       * \\brief Print details of the " << name << " object.\n"
@@ -264,16 +264,16 @@ gen_header(const oks::OksClass *cl,
     << dx << "       */\n\n"
     << dx << "    virtual void print(unsigned int offset, bool print_header, std::ostream& s) const;\n\n\n"
     << dx << "      /**\n"
-    << dx << "       * \\brief Get values of relationships and results of some algorithms as a vector of dunedaq::oksdbinterfaces::DalObject pointers.\n"
+    << dx << "       * \\brief Get values of relationships and results of some algorithms as a vector of dunedaq::conffwk::DalObject pointers.\n"
     << dx << "       *\n"
     << dx << "       * Parameters are:\n"
     << dx << "       *   \\param name          name of the relationship or algorithm\n"
     << dx << "       *   \\return              value of relationship or result of algorithm\n"
     << dx << "       *   \\throw               std::exception if there is no relationship or algorithm with such name in this and base classes\n"
     << dx << "       */\n\n"
-    << dx << "    virtual std::vector<const dunedaq::oksdbinterfaces::DalObject *> get(const std::string& name, bool upcast_unregistered = true) const;\n\n\n"
+    << dx << "    virtual std::vector<const dunedaq::conffwk::DalObject *> get(const std::string& name, bool upcast_unregistered = true) const;\n\n\n"
     << dx << "  protected:\n\n"
-    << dx << "    bool get(const std::string& name, std::vector<const dunedaq::oksdbinterfaces::DalObject *>& vec, bool upcast_unregistered, bool first_call) const;\n\n\n";
+    << dx << "    bool get(const std::string& name, std::vector<const dunedaq::conffwk::DalObject *>& vec, bool upcast_unregistered, bool first_call) const;\n\n\n";
 
 
     // generate class attributes and relationships in accordance with
@@ -412,7 +412,7 @@ gen_header(const oks::OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\return the attribute value\n";
-                  description2 += "\\throw dunedaq::oksdbinterfaces::Generic, dunedaq::oksdbinterfaces::DeletedObject\n";
+                  description2 += "\\throw dunedaq::conffwk::Generic, dunedaq::conffwk::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -455,7 +455,7 @@ gen_header(const oks::OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\param value  new attribute value\n";
-                  description2 += "\\throw dunedaq::oksdbinterfaces::Generic, dunedaq::oksdbinterfaces::DeletedObject\n";
+                  description2 += "\\throw dunedaq::conffwk::Generic, dunedaq::conffwk::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -560,7 +560,7 @@ gen_header(const oks::OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\return the relationship value\n";
-                  description2 += "\\throw dunedaq::oksdbinterfaces::Generic, dunedaq::oksdbinterfaces::DeletedObject\n";
+                  description2 += "\\throw dunedaq::conffwk::Generic, dunedaq::conffwk::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -597,7 +597,7 @@ gen_header(const oks::OksClass *cl,
                           << dx << "        {\n"
                           << dx << "          std::ostringstream text;\n"
                           << dx << "          text << \"relationship \\\"\" << s_" << rname << " << \"\\\" of object \" << this << \" is not set\";\n"
-                          << dx << "          throw dunedaq::oksdbinterfaces::Generic(ERS_HERE, text.str().c_str());\n"
+                          << dx << "          throw dunedaq::conffwk::Generic(ERS_HERE, text.str().c_str());\n"
                           << dx << "        }\n";
                     }
                   else
@@ -607,7 +607,7 @@ gen_header(const oks::OksClass *cl,
                           << dx << "        {\n"
                           << dx << "          std::ostringstream text;\n"
                           << dx << "          text << \"relationship \\\"\" << s_" << rname << " << \"\\\" of object \" << this << \" is empty\";\n"
-                          << dx << "          throw dunedaq::oksdbinterfaces::Generic(ERS_HERE, text.str().c_str());\n"
+                          << dx << "          throw dunedaq::conffwk::Generic(ERS_HERE, text.str().c_str());\n"
                           << dx << "        }\n";
                     }
                 }
@@ -627,7 +627,7 @@ gen_header(const oks::OksClass *cl,
                   std::string description2("\\brief ");
                   description2 += description;
                   description2 += "\n\\param value  new relationship value\n";
-                  description2 += "\\throw dunedaq::oksdbinterfaces::Generic, dunedaq::oksdbinterfaces::DeletedObject\n";
+                  description2 += "\\throw dunedaq::conffwk::Generic, dunedaq::conffwk::DeletedObject\n";
 
                   print_description(cpp_file, description2, dx2);
                 }
@@ -852,7 +852,7 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
 
     // static objects
 
-  cpp_s << dx << "const std::string& " << name << "::s_class_name(dunedaq::oksdbinterfaces::DalFactory::instance().get_known_class_name_ref(\"" << name << "\"));\n\n";
+  cpp_s << dx << "const std::string& " << name << "::s_class_name(dunedaq::conffwk::DalFactory::instance().get_known_class_name_ref(\"" << name << "\"));\n\n";
 
   std::set<std::string> algo_n_set, algo_1_set;
 
@@ -905,7 +905,7 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
     << dx << "  {\n"
     << dx << "    __" << name << "_Registrator()\n"
     << dx << "      {\n"
-    << dx << "        dunedaq::oksdbinterfaces::DalFactory::instance().register_dal_class<" << name << ">(\"" << cl->get_name() << "\", {";
+    << dx << "        dunedaq::conffwk::DalFactory::instance().register_dal_class<" << name << ">(\"" << cl->get_name() << "\", {";
 
     {
       bool is_first = true;
@@ -923,8 +923,8 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
 
   cpp_s
     << dx << "  // the constructor\n\n"
-    << dx << name << "::" << name << "(oksdbinterfaces::Configuration& db, const oksdbinterfaces::ConfigObject& o) noexcept :\n"
-    << dx << "  " << "dunedaq::oksdbinterfaces::DalObject(db, o)";
+    << dx << name << "::" << name << "(conffwk::Configuration& db, const conffwk::ConfigObject& o) noexcept :\n"
+    << dx << "  " << "dunedaq::conffwk::DalObject(db, o)";
 
 
     // fill member initializer list, if any
@@ -1020,12 +1020,12 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
 
     for(const auto& i : *alist) {
       const std::string aname(alnum_name(i->get_name()));
-      std::string abase = (i->get_format() == oks::OksAttribute::Hex) ? "<dunedaq::oksdbinterfaces::hex>" : (i->get_format() == oks::OksAttribute::Oct) ? "<dunedaq::oksdbinterfaces::oct>" : "";
+      std::string abase = (i->get_format() == oks::OksAttribute::Hex) ? "<dunedaq::conffwk::hex>" : (i->get_format() == oks::OksAttribute::Oct) ? "<dunedaq::conffwk::oct>" : "";
 
       if (i->get_is_multi_values())
-        cpp_s << dx << "    dunedaq::oksdbinterfaces::p_mv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
+        cpp_s << dx << "    dunedaq::conffwk::p_mv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
       else
-        cpp_s << dx << "    dunedaq::oksdbinterfaces::p_sv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
+        cpp_s << dx << "    dunedaq::conffwk::p_sv_attr" << abase << "(s, str, s_" << aname << ", m_" << aname << ");\n";
     }
   }
 
@@ -1040,23 +1040,23 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
           if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
             {
               if (i->get_is_composite())
-                cpp_s << dx << "    dunedaq::oksdbinterfaces::p_mv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx << "    dunedaq::conffwk::p_mv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
               else
-                cpp_s << dx << "    dunedaq::oksdbinterfaces::p_mv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx << "    dunedaq::conffwk::p_mv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
             }
           else
             {
               if (i->get_is_composite())
-                cpp_s << dx <<"    dunedaq::oksdbinterfaces::p_sv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx <<"    dunedaq::conffwk::p_sv_rel(s, str, indent, s_" << rname << ", m_" << rname << ");\n";
               else
-                cpp_s << dx <<"    dunedaq::oksdbinterfaces::p_sv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
+                cpp_s << dx <<"    dunedaq::conffwk::p_sv_rel(s, str, s_" << rname << ", m_" << rname << ");\n";
             }
         }
     }
 
   cpp_s << dx << "  }\n"
-        << dx << "  catch (dunedaq::oksdbinterfaces::Exception & ex) {\n"
-        << dx << "    dunedaq::oksdbinterfaces::DalObject::p_error(s, ex);\n"
+        << dx << "  catch (dunedaq::conffwk::Exception & ex) {\n"
+        << dx << "    dunedaq::conffwk::DalObject::p_error(s, ex);\n"
 	<< dx << "  }\n"
         << dx << "}\n\n\n";
 
@@ -1138,7 +1138,7 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
 
       cpp_s
         << dx << "  }\n"
-        << dx << "  catch (dunedaq::oksdbinterfaces::Exception & ex) {\n"
+        << dx << "  catch (dunedaq::conffwk::Exception & ex) {\n"
         << dx << "    throw_init_ex(ex);\n"
         << dx << "  }\n";
 
@@ -1155,16 +1155,16 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
     << dx << "}\n\n";
 
   cpp_s
-    << dx << "std::vector<const dunedaq::oksdbinterfaces::DalObject *> " << name << "::get(const std::string& name, bool upcast_unregistered) const\n"
+    << dx << "std::vector<const dunedaq::conffwk::DalObject *> " << name << "::get(const std::string& name, bool upcast_unregistered) const\n"
     << dx << "{\n"
-    << dx << "  std::vector<const dunedaq::oksdbinterfaces::DalObject *> vec;\n\n"
+    << dx << "  std::vector<const dunedaq::conffwk::DalObject *> vec;\n\n"
     << dx << "  if (!get(name, vec, upcast_unregistered, true))\n"
     << dx << "    throw_get_ex(name, s_class_name, this);\n\n"
     << dx << "  return vec;\n"
     << dx << "}\n\n";
 
   cpp_s
-    << dx << "bool " << name << "::get(const std::string& name, std::vector<const dunedaq::oksdbinterfaces::DalObject *>& vec, bool upcast_unregistered, bool first_call) const\n"
+    << dx << "bool " << name << "::get(const std::string& name, std::vector<const dunedaq::conffwk::DalObject *>& vec, bool upcast_unregistered, bool first_call) const\n"
     << dx << "{\n"
     << dx << "  if (first_call)\n"
     << dx << "    {\n"
@@ -1352,7 +1352,7 @@ gen_cpp_header_prologue(const std::string& file_name,
 			const std::string& cpp_hdr_dir)
 {
   s <<
-    "// *** this file is generated by genconfig, do not modify it ***\n\n"
+    "// *** this file is generated by oksdalgen, do not modify it ***\n\n"
 
     "#ifndef _" << alnum_name(file_name) << "_0_" << alnum_name(cpp_ns_name) << "_0_" << alnum_name(cpp_hdr_dir) << "_H_\n"
     "#define _" << alnum_name(file_name) << "_0_" << alnum_name(cpp_ns_name) << "_0_" << alnum_name(cpp_hdr_dir) << "_H_\n\n"
@@ -1364,8 +1364,8 @@ gen_cpp_header_prologue(const std::string& file_name,
     "#include <map>\n"
     "#include <vector>\n\n"
 
-    "#include \"oksdbinterfaces/Configuration.hpp\"\n"
-    "#include \"oksdbinterfaces/DalObject.hpp\"\n\n";
+    "#include \"conffwk/Configuration.hpp\"\n"
+    "#include \"conffwk/DalObject.hpp\"\n\n";
 }
 
 
@@ -1382,10 +1382,10 @@ gen_cpp_body_prologue(const std::string& file_name,
                       const std::string& cpp_hdr_dir)
 {
   src <<
-    "#include \"oksdbinterfaces/ConfigObject.hpp\"\n"
-    "#include \"oksdbinterfaces/DalFactory.hpp\"\n"
-    "#include \"oksdbinterfaces/DalObjectPrint.hpp\"\n"
-    "#include \"oksdbinterfaces/Errors.hpp\"\n"
+    "#include \"conffwk/ConfigObject.hpp\"\n"
+    "#include \"conffwk/DalFactory.hpp\"\n"
+    "#include \"conffwk/DalObjectPrint.hpp\"\n"
+    "#include \"conffwk/Errors.hpp\"\n"
     "#include \"";
     if(cpp_hdr_dir != "") {
       src <<  cpp_hdr_dir << "/";
@@ -1405,7 +1405,7 @@ main(int argc, char *argv[])
   std::string cpp_dir_name = ".";                // directory for c++ implementation files
   std::string cpp_hdr_dir = "";                  // directory for c++ header files
   std::string cpp_ns_name = "";                  // c++ namespace
-  std::string info_file_name = "genconfig.info"; // name of info file
+  std::string info_file_name = "oksdalgen.info"; // name of info file
   bool verbose = false;
 
   parse_arguments(argc, argv, class_names, file_names, include_dirs, user_classes, cpp_dir_name, cpp_ns_name, cpp_hdr_dir, info_file_name, verbose);
@@ -1595,7 +1595,7 @@ main(int argc, char *argv[])
             const char * main_function_prologue;
           } confs[] =
             {
-              { 0, "oksdbinterfaces/Configuration.hpp", 0, "", "" } };
+              { 0, "conffwk/Configuration.hpp", 0, "", "" } };
 
           for (unsigned int i = 0; i < sizeof(confs) / sizeof(ConfigurationImplementations); ++i)
             {
