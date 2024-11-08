@@ -246,13 +246,15 @@ gen_header(const oks::OksClass *cl,
   cpp_file
     << dx << "  friend class conffwk::Configuration;\n"
     << dx << "  friend class conffwk::Configuration::Cache<" << name << ">;\n\n"
-    << dx << "  friend class conffwk::DalObject;\n\n"
+    << dx << "  friend class conffwk::DalObject;\n"
+    << dx << "  friend class conffwk::DalFactory;\n"
+    << dx << "  friend class conffwk::DalRegistry;\n\n"
     << dx << "  protected:\n\n"
-    << dx << "    " << name << "(conffwk::Configuration& db, const conffwk::ConfigObject& obj) noexcept;\n"
+    << dx << "    " << name << "(conffwk::DalRegistry& db, const conffwk::ConfigObject& obj) noexcept;\n"
     << dx << "    virtual ~" << name << "() noexcept;\n"
     << dx << "    virtual void init(bool init_children);\n\n"
     << dx << "  public:\n\n"
-    << dx << "      /** The name of the conffwkuration class. */\n\n"
+    << dx << "      /** The name of the configuration class. */\n\n"
     << dx << "    static const std::string& s_class_name;\n\n\n"
     << dx << "      /**\n"
     << dx << "       * \\brief Print details of the " << name << " object.\n"
@@ -904,17 +906,22 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
     << dx << "static struct __" << name << "_Registrator\n"
     << dx << "  {\n"
     << dx << "    __" << name << "_Registrator()\n"
+  //   << dx << "      {\n"
+  //   << dx << "        dunedaq::conffwk::DalFactory::instance().register_dal_class<" << name << ">(\"" << cl->get_name() << "\", {";
+
+  //   {
+  //     bool is_first = true;
+  //     set2out(cpp_s, algo_1_set, is_first);
+  //     set2out(cpp_s, algo_n_set, is_first);
+  //   }
+
+  // cpp_s
+  //   << "});\n"
+  //   << dx << "      }\n"
+  //   << dx << "  } registrator;\n\n\n";
+
     << dx << "      {\n"
-    << dx << "        dunedaq::conffwk::DalFactory::instance().register_dal_class<" << name << ">(\"" << cl->get_name() << "\", {";
-
-    {
-      bool is_first = true;
-      set2out(cpp_s, algo_1_set, is_first);
-      set2out(cpp_s, algo_n_set, is_first);
-    }
-
-  cpp_s
-    << "});\n"
+    << dx << "        dunedaq::conffwk::DalFactory::instance().register_dal_class_2g<" << name << ">(\"" << cl->get_name() << "\");\n"
     << dx << "      }\n"
     << dx << "  } registrator;\n\n\n";
 
@@ -923,7 +930,7 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
 
   cpp_s
     << dx << "  // the constructor\n\n"
-    << dx << name << "::" << name << "(conffwk::Configuration& db, const conffwk::ConfigObject& o) noexcept :\n"
+    << dx << name << "::" << name << "(conffwk::DalRegistry& db, const conffwk::ConfigObject& o) noexcept :\n"
     << dx << "  " << "dunedaq::conffwk::DalObject(db, o)";
 
 
@@ -1127,11 +1134,11 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
               std::string rcname = get_full_cpp_class_name(i->get_class_type(), cl_info, cpp_ns_name);
               if (i->get_high_cardinality_constraint() == oks::OksRelationship::Many)
                 {
-                  cpp_s << dx << "    p_db._ref<" << rcname << ">(p_obj, s_" << cpp_name << ", " << "m_" << cpp_name << ", init_children);\n";
+                  cpp_s << dx << "    p_registry._ref<" << rcname << ">(p_obj, s_" << cpp_name << ", " << "m_" << cpp_name << ", init_children);\n";
                 }
               else
                 {
-                  cpp_s << dx << "    m_" << cpp_name << " = p_db._ref<" << rcname << ">(p_obj, s_" << cpp_name << ", init_children);\n";
+                  cpp_s << dx << "    m_" << cpp_name << " = p_registry._ref<" << rcname << ">(p_obj, s_" << cpp_name << ", init_children);\n";
                 }
             }
         }
@@ -1180,7 +1187,7 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
     cpp_s
       << dx << "  if (name == \"" << prototype << "()\")\n"
       << dx << "    {\n"
-      << dx << "      p_db.downcast_dal_objects(" << prototype << "(), upcast_unregistered, vec);\n"
+      << dx << "      p_registry.downcast_dal_objects(" << prototype << "(), upcast_unregistered, vec);\n"
       << dx << "      return true;\n"
       << dx << "    }\n\n";
 
@@ -1188,7 +1195,7 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
     cpp_s
       << dx << "  if (name == \"" << prototype << "()\")\n"
       << dx << "    {\n"
-      << dx << "      p_db.downcast_dal_object(" << prototype << "(), upcast_unregistered, vec);\n"
+      << dx << "      p_registry.downcast_dal_object(" << prototype << "(), upcast_unregistered, vec);\n"
       << dx << "      return true;\n"
       << dx << "    }\n\n";
 
