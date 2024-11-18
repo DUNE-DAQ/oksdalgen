@@ -245,7 +245,6 @@ gen_header(const oks::OksClass *cl,
 
   cpp_file
     << dx << "  friend class conffwk::Configuration;\n"
-    << dx << "  friend class conffwk::Configuration::Cache<" << name << ">;\n\n"
     << dx << "  friend class conffwk::DalObject;\n"
     << dx << "  friend class conffwk::DalFactory;\n"
     << dx << "  friend class conffwk::DalRegistry;\n\n"
