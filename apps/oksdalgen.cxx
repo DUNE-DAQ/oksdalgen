@@ -900,30 +900,17 @@ gen_cpp_body(const oks::OksClass *cl, std::ostream& cpp_s, const std::string& cp
     }
 
 
+  if ( !cl->get_is_abstract() ) {
   cpp_s
     << dx << "  // the factory initializer\n\n"
     << dx << "static struct __" << name << "_Registrator\n"
     << dx << "  {\n"
     << dx << "    __" << name << "_Registrator()\n"
-  //   << dx << "      {\n"
-  //   << dx << "        dunedaq::conffwk::DalFactory::instance().register_dal_class<" << name << ">(\"" << cl->get_name() << "\", {";
-
-  //   {
-  //     bool is_first = true;
-  //     set2out(cpp_s, algo_1_set, is_first);
-  //     set2out(cpp_s, algo_n_set, is_first);
-  //   }
-
-  // cpp_s
-  //   << "});\n"
-  //   << dx << "      }\n"
-  //   << dx << "  } registrator;\n\n\n";
-
     << dx << "      {\n"
-    << dx << "        dunedaq::conffwk::DalFactory::instance().register_dal_class_2g<" << name << ">(\"" << cl->get_name() << "\");\n"
+    << dx << "        dunedaq::conffwk::DalFactory::instance().register_dal_class<" << name << ">(\"" << cl->get_name() << "\");\n"
     << dx << "      }\n"
     << dx << "  } registrator;\n\n\n";
-
+  }
 
     // the constructor
 
