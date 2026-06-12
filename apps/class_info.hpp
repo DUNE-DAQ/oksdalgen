@@ -1,6 +1,6 @@
 /*
  * DUNE DAQ modification notice:
- * This file has been modified from the original ATLAS oks source for the DUNE DAQ project.
+ * This file has been modified from the original ATLAS genconfig source for the DUNE DAQ project.
  * Fork baseline commit: genconfig-03-10-00 (2021-04-26).
  * Renamed since fork: yes (from src/class_info.h to apps/class_info.hpp).
  */
