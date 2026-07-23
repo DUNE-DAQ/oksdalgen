@@ -684,6 +684,7 @@ const std::string begin_member_initializer_list("BEGIN_MEMBER_INITIALIZER_LIST")
 const std::string end_member_initializer_list("END_MEMBER_INITIALIZER_LIST");
 const std::string has_add_algo_1("ADD_ALGO_1");
 const std::string has_add_algo_n("ADD_ALGO_N");
+const std::string method_protected("METHOD_PROTECTED");
 
 static std::string
 get_method_header_x_logue(OksMethodImplementation * mi, const std::string& begin, const std::string& end)
@@ -713,6 +714,13 @@ std::string
 get_public_section(OksMethodImplementation * mi)
 {
   return get_method_header_x_logue(mi, begin_public_section, end_public_section);
+}
+
+bool
+get_method_protected(OksMethodImplementation * mi)
+{
+  std::string::size_type begix_idx = mi->get_body().find(method_protected, 0);
+  return (begix_idx != std::string::npos);
 }
 
 std::string
@@ -768,6 +776,7 @@ get_method_implementation_body(OksMethodImplementation * mi)
   remove_string_section(s, begin_member_initializer_list, end_member_initializer_list);
   remove_string_section(s, has_add_algo_1, "");
   remove_string_section(s, has_add_algo_n, "");
+  remove_string_section(s, method_protected, "");
 
   if(std::all_of(s.begin(),s.end(),isspace))
     return "";

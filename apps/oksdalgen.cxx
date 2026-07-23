@@ -51,6 +51,7 @@ extern std::string get_member_initializer_list(oks::OksMethodImplementation * mi
 extern std::string get_method_implementation_body(oks::OksMethodImplementation * mi);
 extern bool get_add_algo_1(oks::OksMethodImplementation * mi);
 extern bool get_add_algo_n(oks::OksMethodImplementation * mi);
+extern bool get_method_protected(oks::OksMethodImplementation * mi);
 extern oks::OksMethodImplementation * find_cpp_method_implementation(const oks::OksMethod * method);
 
 
@@ -681,6 +682,11 @@ gen_header(const oks::OksClass *cl,
                   cpp_file << "\n\n";
                 }
 
+              auto protected_method = get_method_protected(mi);
+              if (protected_method)
+                {
+                  cpp_file << dx << "protected:\n";
+                }
               // generate description
 
               print_description(cpp_file, i->get_description(), dx2);
@@ -698,6 +704,12 @@ gen_header(const oks::OksClass *cl,
                   cpp_file << "\n" << "      // extension of method " << cl->get_name() << "::" << i->get_name() << "()\n";
                   print_indented(cpp_file, public_method_extension, "    ");
                 }
+
+              if (protected_method)
+                {
+                  cpp_file << "\n" <<  dx << "public:\n";
+                }
+
             }
 
         }
