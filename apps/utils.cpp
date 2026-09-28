@@ -5,7 +5,6 @@
 // Renamed since fork: yes (from src/utils.cpp to apps/utils.cpp).
 //
 
-
 #include "class_info.hpp"
 
 #include "oks/kernel.hpp"

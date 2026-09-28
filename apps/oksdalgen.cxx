@@ -5,7 +5,6 @@
 // Renamed since fork: yes (from src/genconfig.cpp to apps/oksdalgen.cxx).
 //
 
-
 #include "class_info.hpp"
 
 #include "oks/attribute.hpp"
