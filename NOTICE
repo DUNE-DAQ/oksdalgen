@@ -1,10 +1,24 @@
 
-This repo's code has been copied from the ATLAS TDAQ package of the
-same name (under the tdaq-9-05-00 release) and been refactored for the
-DUNE DAQ. Original ATLAS TDAQ licensing info (Apache License 2.0) can
-be found below this line. Note that while this license does not
-necessarily apply to the refactored parts of the code, it does apply
-to the unmodified parts.
+This repository's code was copied from the ATLAS TDAQ package "genconfig"
+(https://gitlab.cern.ch/atlas-tdaq-software/genconfig/) (under the
+tdaq-9-05-00 release, tag genconfig-03-10-00) in November 2022; the
+carbon copy of that code can be found in commit
+0dd2872fa42ceb589af884bcca98ec153e1fc4a0 in this repo. Since then, the
+code has been refactored for the DUNE DAQ and the package has been
+renamed from "genconfig" to "oksdalgen".
+
+Consistent with the ATLAS "genconfig" repository's Apache 2.0 license:
+
+* A copy of the original ATLAS genconfig NOTICE is reproduced below and in
+  licenses_and_notices/NOTICE.genconfig_ATLAS.
+
+* A copy of the ATLAS genconfig Apache 2.0 license is included in
+  licenses_and_notices/LICENSE.Apache2.0; it is to be considered only
+  in terms of satisfying ATLAS genconfig's license terms and not as a
+  licensing of this repository's code as such.
+
+* All modifications to the source files for DUNE DAQ in this
+  repository are marked as such in each file's header.
 
 ======================================================================
 
@@ -14,11 +28,5 @@ Licensed under the Apache License, version 2.0.
 Contributors
 ============
  Igor Soloviev <Igor.Soloviev@cern.ch>
- Giovanna Lehmann Miotto <Giovanna.Lehmann@cern.ch>
- Marc Dobson <Marc.Dobson@cern.ch>
- Andrei Kazarov <Andrei.Kazarov@cern.ch>
- Giuseppe Avolio <Giuseppe.Avolio@cern.ch>
- Bahar Aydemir <bahar.aydemir@cern.ch>
- Andy Salnikov <salnikov@slac.stanford.edu>
+ Rodrigo Coura Torres <rodrigo.torres@cern.ch>
  Andre Dos Anjos <andre.dos.anjos@gmail.com>
-
